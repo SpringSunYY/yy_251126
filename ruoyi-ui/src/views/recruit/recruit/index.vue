@@ -17,14 +17,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="标题链接" prop="titleUrl">
-        <el-input
-          v-model="queryParams.titleUrl"
-          placeholder="请输入标题链接"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
       <el-form-item label="地点" prop="location">
         <el-input
           v-model="queryParams.location"
@@ -169,8 +161,13 @@
 
     <el-table :loading="loading" :data="recruitList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="recruitId" />
       <el-table-column label="岗位" align="center" :show-overflow-tooltip="true" v-if="columns[1].visible" prop="post" />
-      <el-table-column label="标题链接" align="center" :show-overflow-tooltip="true" v-if="columns[2].visible" prop="titleUrl" />
+      <el-table-column label="标题链接" align="center" :show-overflow-tooltip="true" v-if="columns[2].visible" prop="titleUrl" >
+        <template slot-scope="scope">
+          <a v-if="scope.row.titleUrl" :href="scope.row.titleUrl" target="_blank">查看</a>
+        </template>
+      </el-table-column>
       <el-table-column label="薪资范围" align="center" :show-overflow-tooltip="true" v-if="columns[3].visible" prop="salaryRange" />
       <el-table-column label="月薪最小值" align="center" :show-overflow-tooltip="true" v-if="columns[4].visible" prop="salaryMonthMin" />
       <el-table-column label="月薪最大值" align="center" :show-overflow-tooltip="true" v-if="columns[5].visible" prop="salaryMonthMax" />
@@ -237,21 +234,21 @@
         <el-form-item label="岗位" prop="post">
           <el-input v-model="form.post" placeholder="请输入岗位" />
         </el-form-item>
-        <el-form-item label="标题链接" prop="titleUrl">
-          <el-input v-model="form.titleUrl" placeholder="请输入标题链接" />
-        </el-form-item>
+<!--        <el-form-item label="标题链接" prop="titleUrl">-->
+<!--          <el-input v-model="form.titleUrl" placeholder="请输入标题链接" />-->
+<!--        </el-form-item>-->
         <el-form-item label="薪资范围" prop="salaryRange">
           <el-input v-model="form.salaryRange" placeholder="请输入薪资范围" />
         </el-form-item>
-        <el-form-item label="月薪最小值" prop="salaryMonthMin">
-          <el-input v-model="form.salaryMonthMin" placeholder="请输入月薪最小值" />
-        </el-form-item>
-        <el-form-item label="月薪最大值" prop="salaryMonthMax">
-          <el-input v-model="form.salaryMonthMax" placeholder="请输入月薪最大值" />
-        </el-form-item>
-        <el-form-item label="月薪平均值" prop="salaryMonthAvg">
-          <el-input v-model="form.salaryMonthAvg" placeholder="请输入月薪平均值" />
-        </el-form-item>
+<!--        <el-form-item label="月薪最小值" prop="salaryMonthMin">-->
+<!--          <el-input v-model="form.salaryMonthMin" placeholder="请输入月薪最小值" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="月薪最大值" prop="salaryMonthMax">-->
+<!--          <el-input v-model="form.salaryMonthMax" placeholder="请输入月薪最大值" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="月薪平均值" prop="salaryMonthAvg">-->
+<!--          <el-input v-model="form.salaryMonthAvg" placeholder="请输入月薪平均值" />-->
+<!--        </el-form-item>-->
         <el-form-item label="地点" prop="location">
           <el-input v-model="form.location" placeholder="请输入地点" />
         </el-form-item>
@@ -382,13 +379,13 @@ export default {
       recruitList: [],
       // 表格列信息
       columns: [
-        { key: 0, label: '编号', visible: true },
+        { key: 0, label: '编号', visible: false },
         { key: 1, label: '岗位', visible: true },
         { key: 2, label: '标题链接', visible: true },
         { key: 3, label: '薪资范围', visible: true },
-        { key: 4, label: '月薪最小值', visible: true },
-        { key: 5, label: '月薪最大值', visible: true },
-        { key: 6, label: '月薪平均值', visible: true },
+        { key: 4, label: '月薪最小值', visible: false },
+        { key: 5, label: '月薪最大值', visible: false },
+        { key: 6, label: '月薪平均值', visible: false },
         { key: 7, label: '地点', visible: true },
         { key: 8, label: '经验要求', visible: true },
         { key: 9, label: '学历要求', visible: true },
