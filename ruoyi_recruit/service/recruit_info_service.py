@@ -7,6 +7,7 @@ from typing import List
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
+from ruoyi_framework.descriptor import custom_cacheable
 from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo
@@ -211,6 +212,12 @@ class recruit_info_service:
         }
 
     # region 数据分析
+    @custom_cacheable(
+        key_prefix="recruit_info_service",
+        key_field="get_recruit_skill_analysis",
+        use_query_params_as_key=True,
+        expire_time=5*60
+    )
     def get_recruit_skill_analysis(self, request: recruit_statistics_request)-> List[statistics_vo]:
         """
         获取招聘信息表技能分析

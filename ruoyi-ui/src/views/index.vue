@@ -25,7 +25,7 @@
       </el-col>
     </el-row>
     <div class="chart-wrapper" style="height: 50vh">
-      <KeywordGravityCharts :chart-data="killAnalysisData" :chartName="killAnalysisName"/>
+      <KeywordGravityCharts :chart-data="killAnalysisData" />
     </div>
 
   </div>
