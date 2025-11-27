@@ -1,4 +1,3 @@
-
 from typing import List
 
 from flask import g
@@ -10,12 +9,14 @@ from werkzeug.datastructures import FileStorage
 from ruoyi_common.base.model import AjaxResponse, TableResponse
 from ruoyi_common.constant import HttpStatus
 from ruoyi_common.descriptor.serializer import BaseSerializer, JsonSerializer
-from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, FileUploadValidator
+from ruoyi_common.descriptor.validator import QueryValidator, BodyValidator, PathValidator, FileDownloadValidator, \
+    FileUploadValidator
 from ruoyi_common.domain.enum import BusinessType
 from ruoyi_common.utils.base import ExcelUtil
 from ruoyi_framework.descriptor.log import Log
 from ruoyi_framework.descriptor.permission import HasPerm, PreAuthorize
 from ruoyi_recruit.controller import recruit_info as recruit_info_bp
+from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.service.recruit_info_service import recruit_info_service as recruit_info_service_class
 
@@ -28,6 +29,7 @@ recruit_info_service = recruit_info_service_class()
 def _clear_page_context():
     if hasattr(g, "criterian_meta"):
         g.criterian_meta.page = None
+
 
 @gen.route('/list', methods=["GET"])
 @QueryValidator(is_page=True)
@@ -91,7 +93,6 @@ def update_recruit(dto: recruit_info):
     return AjaxResponse.from_error(code=HttpStatus.ERROR, msg='修改失败')
 
 
-
 @gen.route('/<ids>', methods=['DELETE'])
 @PathValidator()
 @PreAuthorize(HasPerm('recruit:recruit:remove'))
@@ -129,6 +130,7 @@ def export_recruit(dto: recruit_info):
     excel_util = ExcelUtil(recruit_info)
     return excel_util.export_response(recruits, "招聘信息表数据")
 
+
 @gen.route('/importTemplate', methods=['POST'])
 @login_required
 @BaseSerializer()
@@ -137,14 +139,15 @@ def import_template():
     excel_util = ExcelUtil(recruit_info)
     return excel_util.import_template_response(sheetname="招聘信息表数据")
 
+
 @gen.route('/importData', methods=['POST'])
 @FileUploadValidator()
 @PreAuthorize(HasPerm('recruit:recruit:import'))
 @Log(title='招聘信息表管理', business_type=BusinessType.IMPORT)
 @JsonSerializer()
 def import_data(
-    file: List[FileStorage],
-    update_support: Annotated[bool, BeforeValidator(lambda x: x != "0")]
+        file: List[FileStorage],
+        update_support: Annotated[bool, BeforeValidator(lambda x: x != "0")]
 ):
     """导入招聘信息表数据"""
     file = file[0]
@@ -152,3 +155,14 @@ def import_data(
     recruit_list = excel_util.import_file(file, sheetname="招聘信息表数据")
     msg = recruit_info_service.import_recruit_info(recruit_list, update_support)
     return AjaxResponse.from_success(msg=msg)
+
+
+""""招聘信息技能统计"""
+@gen.route('/statistics/skill', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('recruit:recruit:statistics'))
+@JsonSerializer()
+def get_recruit_skill_analysis(request: recruit_statistics_request):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=recruit_info_service.get_recruit_skill_analysis(request))
+

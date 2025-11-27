@@ -7,11 +7,14 @@ from typing import List
 from datetime import datetime
 
 from flask import g
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func
 
 from ruoyi_admin.ext import db
+from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.domain.po import recruit_info_po
+from ruoyi_recruit.domain.ro import statistics_ro
+
 
 class recruit_info_mapper:
     """招聘信息表Mapper"""
@@ -31,79 +34,41 @@ class recruit_info_mapper:
             # 构建查询条件
             stmt = select(recruit_info_po)
 
-
             if recruit.recruit_id is not None:
                 stmt = stmt.where(recruit_info_po.recruit_id == recruit.recruit_id)
-
-
 
             if recruit.post:
                 stmt = stmt.where(recruit_info_po.post.like("%" + str(recruit.post) + "%"))
 
-
-
             if recruit.title_url is not None:
                 stmt = stmt.where(recruit_info_po.title_url == recruit.title_url)
-
-
-
-
-
-
-
-
-
-
 
             if recruit.location:
                 stmt = stmt.where(recruit_info_po.location.like("%" + str(recruit.location) + "%"))
 
-
-
             if recruit.experience_required is not None:
                 stmt = stmt.where(recruit_info_po.experience_required == recruit.experience_required)
-
-
 
             if recruit.education_required:
                 stmt = stmt.where(recruit_info_po.education_required.like("%" + str(recruit.education_required) + "%"))
 
-
-
             if recruit.skill_required:
                 stmt = stmt.where(recruit_info_po.skill_required.like("%" + str(recruit.skill_required) + "%"))
-
-
 
             if recruit.enterprise_name:
                 stmt = stmt.where(recruit_info_po.enterprise_name.like("%" + str(recruit.enterprise_name) + "%"))
 
-
-
             if recruit.listing_status is not None:
                 stmt = stmt.where(recruit_info_po.listing_status == recruit.listing_status)
-
-
 
             if recruit.enterprise_size is not None:
                 stmt = stmt.where(recruit_info_po.enterprise_size == recruit.enterprise_size)
 
-
-
             if recruit.main_business:
                 stmt = stmt.where(recruit_info_po.main_business.like("%" + str(recruit.main_business) + "%"))
 
-
-
             if recruit.title_detail:
                 stmt = stmt.where(recruit_info_po.title_detail.like("%" + str(recruit.title_detail) + "%"))
-
-
-
-
-
-
-
 
             if "criterian_meta" in g and g.criterian_meta.page:
                 g.criterian_meta.page.stmt = stmt
@@ -113,7 +78,6 @@ class recruit_info_mapper:
         except Exception as e:
             print(f"查询招聘信息表列表出错: {e}")
             return []
-
 
     @staticmethod
     def select_recruit_info_by_id(recruit_id: int) -> recruit_info:
@@ -133,7 +97,6 @@ class recruit_info_mapper:
         except Exception as e:
             print(f"根据ID查询招聘信息表出错: {e}")
             return None
-
 
     @staticmethod
     def insert_recruit_info(recruit: recruit_info) -> int:
@@ -176,7 +139,6 @@ class recruit_info_mapper:
             db.session.rollback()
             print(f"新增招聘信息表出错: {e}")
             return 0
-
 
     @staticmethod
     def update_recruit_info(recruit: recruit_info) -> int:
@@ -242,3 +204,45 @@ class recruit_info_mapper:
             db.session.rollback()
             print(f"批量删除招聘信息表出错: {e}")
             return 0
+
+    @staticmethod
+    def get_recruit_skill_statistics(request: recruit_statistics_request) -> List[statistics_ro]:
+        """
+        获取招聘信息技能统计
+        -- 统计招聘信息技能总数
+        select count(*) as value, skill_required as name from tb_recruit_info
+        group by skill_required
+        """
+        # 构建查询条件
+        # 构建查询语句，统计技能要求并按技能分组
+        stmt = select(
+            func.count().label('value'),
+            recruit_info_po.skill_required.label('name')
+        ).group_by(recruit_info_po.skill_required)
+        # 过滤空值
+        stmt = stmt.where(recruit_info_po.skill_required.isnot(None))
+        if request.recruit_id is not None:
+            stmt = stmt.where(recruit_info_po.recruit_id == request.recruit_id)
+
+        if request.post:
+            stmt = stmt.where(recruit_info_po.post.like("%" + str(request.post) + "%"))
+        if request.location:
+            stmt = stmt.where(recruit_info_po.location.like("%" + str(request.location) + "%"))
+        if request.experience_required:
+            stmt = stmt.where(recruit_info_po.experience_required == request.experience_required)
+        if request.education_required:
+            stmt = stmt.where(recruit_info_po.education_required == request.education_required)
+        if request.skill_required:
+            stmt = stmt.where(recruit_info_po.skill_required.like("%" + str(request.skill_required) + "%"))
+        if request.enterprise_name:
+            stmt = stmt.where(recruit_info_po.enterprise_name.like("%" + str(request.enterprise_name) + "%"))
+        if request.listing_status:
+            stmt = stmt.where(recruit_info_po.listing_status == request.listing_status)
+        if request.enterprise_size:
+            stmt = stmt.where(recruit_info_po.enterprise_size == request.enterprise_size)
+        if request.main_business:
+            stmt = stmt.where(recruit_info_po.main_business.like("%" + str(request.main_business) + "%"))
+
+        # 执行查询
+        result = db.session.execute(stmt).fetchall()
+        return [statistics_ro(value=row.value, name=row.name) for row in result]

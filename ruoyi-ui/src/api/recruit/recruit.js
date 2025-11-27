@@ -1,9 +1,5 @@
 import request from '@/utils/request'
 
-
-
-
-
 // 查询招聘信息表列表
 export function listRecruitInfo(query) {
   return request({

@@ -1,0 +1,1 @@
+from .recruit_request import recruit_statistics_request

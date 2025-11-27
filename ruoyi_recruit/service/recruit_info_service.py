@@ -7,7 +7,9 @@ from typing import List
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
+from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
+from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo
 from ruoyi_recruit.mapper.recruit_info_mapper import recruit_info_mapper
 import re
 
@@ -137,7 +139,7 @@ class recruit_info_service:
         success_msg = f"恭喜您，数据已全部导入成功！共 {success_count} 条，数据如下：" + success_msg
         return success_msg
 
-    def calculate_recruit_salary(self,recruit):
+    def calculate_recruit_salary(self, recruit):
         """
         计算月薪
         """
@@ -153,6 +155,7 @@ class recruit_info_service:
             recruit.salary_month_max = parsed_salary["max_salary"]
             recruit.salary_month_avg = parsed_salary["avg_salary"]
         pass
+
     @staticmethod
     def parse_salary(s: str):
         s = s.strip()
@@ -206,3 +209,24 @@ class recruit_info_service:
             "max_salary": round(monthly_max, 2),
             "avg_salary": round(monthly_avg, 2)
         }
+
+    # region 数据分析
+    def get_recruit_skill_analysis(self, request: recruit_statistics_request)-> List[statistics_vo]:
+        """
+        获取招聘信息表技能分析
+        """
+        # 根据查询条件查询到所有的招聘信息
+        statistics_ros = recruit_info_mapper.get_recruit_skill_statistics(request)
+        # 将查询结果进行聚合，名称以逗号分割得到每个技能名称，并叠加统计数量
+        skill_counts = {}
+        for statistics_ro in statistics_ros:
+            if not statistics_ro.name:
+                continue
+            skills = [skill.strip() for skill in statistics_ro.name.split(",") if skill.strip()]
+            for skill in skills:
+                skill_counts[skill] = skill_counts.get(skill, 0) + statistics_ro.value
+        # 遍历结果集，返回一个统计对象列表，根据技能value排序，取前一百
+        skill_counts = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)[:100]
+        return [statistics_vo(name=name, value=count) for name, count in skill_counts]
+
+# endregion

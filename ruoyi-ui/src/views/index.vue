@@ -1,31 +1,33 @@
 <template>
   <div class="dashboard-editor-container">
 
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <panel-group @handleSetLineChartData="handleSetLineChartData"/>
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
+      <line-chart :chart-data="lineChartData"/>
     </el-row>
 
     <el-row :gutter="32">
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <raddar-chart />
+          <raddar-chart/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart/>
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <bar-chart />
+          <bar-chart/>
         </div>
       </el-col>
     </el-row>
+    <div class="chart-wrapper" style="height: 50vh">
+      <KeywordGravityCharts :chart-data="killAnalysisData" :chartName="killAnalysisName"/>
+    </div>
 
-    
   </div>
 </template>
 
@@ -35,6 +37,8 @@ import LineChart from './dashboard/LineChart'
 import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
+import {recruitSkillAnalysis} from "@/api/recruit/statistics";
+import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -58,6 +62,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    KeywordGravityCharts: KeywordGravityCharts,
     PanelGroup,
     LineChart,
     RaddarChart,
@@ -66,10 +71,20 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisitis,
+      killAnalysisData: [],
+      killAnalysisName: "求职技能分析",
     }
   },
+  created() {
+    this.getKillAnalysisData()
+  },
   methods: {
+    getKillAnalysisData() {
+      recruitSkillAnalysis().then(res => {
+        this.killAnalysisData = res.data
+      })
+    },
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type]
     }
@@ -90,7 +105,7 @@ export default {
   }
 }
 
-@media (max-width:1024px) {
+@media (max-width: 1024px) {
   .chart-wrapper {
     padding: 8px;
   }
