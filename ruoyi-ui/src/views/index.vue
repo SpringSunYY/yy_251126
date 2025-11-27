@@ -27,6 +27,9 @@
     <div class="chart-wrapper" style="height: 50vh">
       <KeywordGravityCharts :chart-data="killAnalysisData" />
     </div>
+    <div class="chart-wrapper" style="height: 100vh">
+      <RelationCharts />
+    </div>
 
   </div>
 </template>
@@ -39,6 +42,7 @@ import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
 import {recruitSkillAnalysis} from "@/api/recruit/statistics";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
+import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -62,6 +66,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    RelationCharts,
     KeywordGravityCharts: KeywordGravityCharts,
     PanelGroup,
     LineChart,

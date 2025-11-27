@@ -210,7 +210,6 @@ export default {
         };
       });
 
-
       const option = {
         title: {
           show: true,
