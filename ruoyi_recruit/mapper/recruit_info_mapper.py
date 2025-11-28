@@ -221,9 +221,16 @@ class recruit_info_mapper:
         ).group_by(recruit_info_po.skill_required)
         # 过滤空值
         stmt = stmt.where(recruit_info_po.skill_required.isnot(None))
+        stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
+
+        # 执行查询
+        result = db.session.execute(stmt).fetchall()
+        return [statistics_ro(value=row.value, name=row.name) for row in result]
+
+    @staticmethod
+    def builder_statistics_query(request, stmt):
         if request.recruit_id is not None:
             stmt = stmt.where(recruit_info_po.recruit_id == request.recruit_id)
-
         if request.post:
             stmt = stmt.where(recruit_info_po.post.like("%" + str(request.post) + "%"))
         if request.location:
@@ -242,7 +249,20 @@ class recruit_info_mapper:
             stmt = stmt.where(recruit_info_po.enterprise_size == request.enterprise_size)
         if request.main_business:
             stmt = stmt.where(recruit_info_po.main_business.like("%" + str(request.main_business) + "%"))
+        return stmt
 
-        # 执行查询
-        result = db.session.execute(stmt).fetchall()
-        return [statistics_ro(value=row.value, name=row.name) for row in result]
+    @staticmethod
+    def get_recruit_post_statistics(request: recruit_statistics_request):
+        """
+        获取招聘信息职位统计
+        -- 统计招聘信息职位总数
+        select count(*) as value, post as name from tb_recruit_info
+        group by post
+        """
+        stmt = select(
+            func.count().label('value'),
+            recruit_info_po.post.label('name')
+        ).group_by(recruit_info_po.post)
+        stmt = stmt.where(recruit_info_po.post.isnot(None))
+        stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
+        return [statistics_ro(value=row.value, name=row.name) for row in db.session.execute(stmt).fetchall()]

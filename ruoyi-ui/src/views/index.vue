@@ -25,10 +25,12 @@
       </el-col>
     </el-row>
     <div class="chart-wrapper" style="height: 50vh">
-      <KeywordGravityCharts :chart-data="killAnalysisData" />
+      <KeywordGravityCharts :chart-data="killAnalysisData"
+                            :chart-name="killAnalysisName"/>
     </div>
     <div class="chart-wrapper" style="height: 100vh">
-      <RelationCharts />
+      <RelationCharts :chart-data="recruitDistributionData"
+                      :chart-name="recruitDistributionName"/>
     </div>
 
   </div>
@@ -40,7 +42,7 @@ import LineChart from './dashboard/LineChart'
 import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
-import {recruitSkillAnalysis} from "@/api/recruit/statistics";
+import {recruitDistributionAnalysis, recruitSkillAnalysis} from "@/api/recruit/statistics";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 
@@ -79,10 +81,16 @@ export default {
       lineChartData: lineChartData.newVisitis,
       killAnalysisData: [],
       killAnalysisName: "求职技能分析",
+      recruitDistributionData: {},
+      recruitDistributionName: "招聘信息分布"
     }
   },
   created() {
     this.getKillAnalysisData()
+    recruitDistributionAnalysis({}).then(res => {
+      this.recruitDistributionData = res.data
+      console.log(this.recruitDistributionData)
+    })
   },
   methods: {
     getKillAnalysisData() {

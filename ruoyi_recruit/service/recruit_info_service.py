@@ -4,15 +4,19 @@
 # @Time    : 2025-11-26 18:15:10
 
 from typing import List
+from collections import Counter
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
 from ruoyi_framework.descriptor import custom_cacheable
 from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
+from ruoyi_recruit.domain.vo import relation_statistics_vo
 from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo
 from ruoyi_recruit.mapper.recruit_info_mapper import recruit_info_mapper
 import re
+
+from ruoyi_system.service import SysDictTypeService
 
 
 class recruit_info_service:
@@ -213,12 +217,12 @@ class recruit_info_service:
 
     # region 数据分析
     @custom_cacheable(
-        key_prefix="recruit_info_service",
-        key_field="get_recruit_skill_analysis",
+        key_prefix="recruit:statistics:skill:analysis",
         use_query_params_as_key=True,
-        expire_time=5*60
+        expire_time=5 * 60
     )
-    def get_recruit_skill_analysis(self, request: recruit_statistics_request)-> List[statistics_vo]:
+    def get_recruit_skill_analysis(self, request: recruit_statistics_request, result_size: int = 100) -> List[
+        statistics_vo]:
         """
         获取招聘信息表技能分析
         """
@@ -233,7 +237,92 @@ class recruit_info_service:
             for skill in skills:
                 skill_counts[skill] = skill_counts.get(skill, 0) + statistics_ro.value
         # 遍历结果集，返回一个统计对象列表，根据技能value排序，取前一百
-        skill_counts = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)[:100]
+        skill_counts = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)[:result_size]
         return [statistics_vo(name=name, value=count) for name, count in skill_counts]
+
+    @custom_cacheable(
+        key_prefix="recruit:statistics:distribution:analysis",
+        use_query_params_as_key=True,
+        expire_time=5 * 60
+    )
+    def get_recruit_distribution_analysis(self, request: recruit_statistics_request) -> List[relation_statistics_vo]:
+        """
+        构建企业规模 -> 岗位 -> 经验 -> 技能的层级统计
+        """
+        enterprise_sizes = SysDictTypeService.select_dict_data_by_type("recruit_enterprise_size")
+        experience_list = SysDictTypeService.select_dict_data_by_type("recruit_experience_required")
+        size_names = [item.dict_value for item in enterprise_sizes]
+        experience_names = [item.dict_value for item in experience_list]
+
+        if not size_names or not experience_names:
+            return relation_statistics_vo(name="企业岗位要求", value=0, children=[])
+
+        result = []
+        for size_name in size_names:
+            size_request = request.model_copy(update={"enterprise_size": size_name})
+            post_nodes = self._build_post_nodes(size_request, experience_names)
+            if not post_nodes:
+                continue
+            size_total = sum(post.value for post in post_nodes)
+            result.append(relation_statistics_vo(name=size_name, value=size_total, children=post_nodes))
+
+        total = sum(item.value for item in result)
+        return relation_statistics_vo(name="企业岗位要求", value=total, children=result)
+
+    def _build_post_nodes(self, request: recruit_statistics_request, experience_names: List[str]) -> List[
+        relation_statistics_vo]:
+        """
+        按岗位聚合并构建岗位层节点
+        """
+        post_statistics = recruit_info_mapper.get_recruit_post_statistics(request)
+        if not post_statistics:
+            return []
+
+        post_counter = Counter()
+        for item in post_statistics:
+            cleaned_name = self._clean_post_name(item.name)
+            if not cleaned_name:
+                continue
+            post_counter[cleaned_name] += item.value
+
+        post_nodes = []
+        for post_name, _ in post_counter.most_common(10):
+            post_request = request.model_copy(update={"post": post_name})
+            experience_nodes = self._build_experience_nodes(post_request, experience_names)
+            if not experience_nodes:
+                continue
+            post_total = sum(exp.value for exp in experience_nodes)
+            post_nodes.append(relation_statistics_vo(name=post_name, value=post_total, children=experience_nodes))
+        return post_nodes
+
+    def _build_experience_nodes(self, request: recruit_statistics_request, experience_names: List[str]) -> List[
+        relation_statistics_vo]:
+        """
+        构建经验层节点，并填充技能数据
+        """
+        experience_nodes = []
+        for experience_name in experience_names:
+            experience_request = request.model_copy(update={"experience_required": experience_name})
+            skill_list = self.get_recruit_skill_analysis(experience_request, 10)
+            if not skill_list:
+                continue
+            skill_nodes = [
+                relation_statistics_vo(name=skill.name, value=skill.value, children=[])
+                for skill in skill_list
+            ]
+            experience_total = sum(skill.value for skill in skill_list)
+            experience_nodes.append(
+                relation_statistics_vo(name=experience_name, value=experience_total, children=skill_nodes))
+        return experience_nodes
+
+    @staticmethod
+    def _clean_post_name(name: str) -> str:
+        """
+        去除空格以及括号内容，过滤异常岗位名称
+        """
+        if not name:
+            return ""
+        cleaned = re.sub(r'\s+|\(.*?\)', '', name).strip()
+        return cleaned if cleaned and len(cleaned) <= 10 else ""
 
 # endregion
