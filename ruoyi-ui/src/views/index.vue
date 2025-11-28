@@ -32,6 +32,10 @@
       <RelationCharts :chart-data="recruitDistributionData"
                       :chart-name="recruitDistributionName"/>
     </div>
+    <div class="chart-wrapper" style="height: 100vh">
+      <ScatterAvgCharts
+      />
+    </div>
 
   </div>
 </template>
@@ -45,6 +49,7 @@ import BarChart from './dashboard/BarChart'
 import {recruitDistributionAnalysis, recruitSkillAnalysis} from "@/api/recruit/statistics";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
+import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -68,6 +73,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    ScatterAvgCharts,
     RelationCharts,
     KeywordGravityCharts: KeywordGravityCharts,
     PanelGroup,

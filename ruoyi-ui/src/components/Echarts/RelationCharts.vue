@@ -350,9 +350,7 @@ export default {
         item.level = parentNode ? parentNode.level + 1 : 0;
 
         // 使用更可靠的唯一ID生成方式
-        const uniqueKey = `${parentId || 'root'}_${item.level}_${item.name}`;
-        item.id = uniqueKey;
-        console.log(uniqueKey);
+        item.id = `${parentId || 'root'}_${item.level}_${item.name}`;
         if (item.children && item.children.length) {
           this.generateIds(item.children, item.id, item, idx);
         }
