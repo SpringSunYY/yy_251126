@@ -14,6 +14,7 @@ from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.domain.po import recruit_info_po
 from ruoyi_recruit.domain.ro import statistics_ro
+from ruoyi_recruit.domain.ro.statistics_ro import statistics_salary_ro
 
 
 class recruit_info_mapper:
@@ -226,6 +227,32 @@ class recruit_info_mapper:
         # 执行查询
         result = db.session.execute(stmt).fetchall()
         return [statistics_ro(value=row.value, name=row.name) for row in result]
+
+    @staticmethod
+    def get_recruit_skill_salary_statistics(request: recruit_statistics_request) -> List[statistics_salary_ro]:
+        """
+        获取招聘信息技能工资统计
+        """
+        stmt = select(
+            func.count().label('value'),
+            recruit_info_po.skill_required.label('name'),
+            func.min(recruit_info_po.salary_month_min).label('min_salary'),
+            func.max(recruit_info_po.salary_month_max).label('max_salary'),
+            func.avg(recruit_info_po.salary_month_avg).label('avg_salary'),
+        ).group_by(recruit_info_po.skill_required)
+        stmt = stmt.where(recruit_info_po.skill_required.isnot(None))
+        # 只统计有薪资数据的记录
+        stmt = stmt.where(recruit_info_po.salary_month_min.isnot(None))
+        stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
+        result = db.session.execute(stmt).fetchall()
+        # 处理 None 值，如果为 None 则使用 0.0（理论上不会出现，因为已经过滤了）
+        return [statistics_salary_ro(
+            value=row.value, 
+            name=row.name, 
+            min_salary=float(row.min_salary) if row.min_salary is not None else 0.0, 
+            max_salary=float(row.max_salary) if row.max_salary is not None else 0.0, 
+            avg_salary=float(row.avg_salary) if row.avg_salary is not None else 0.0
+        ) for row in result]
 
     @staticmethod
     def builder_statistics_query(request, stmt):

@@ -9,6 +9,14 @@ export function recruitSkillAnalysis(query) {
   })
 }
 
+//招聘信息技能工资统计
+export function recruitSkillSalaryAnalysis(query) {
+  return request({
+    url: '/recruit/recruit/statistics/skill/salary',
+    method: 'get',
+    params: query
+  })
+}
 
 //招聘信息分布统计
 export function recruitDistributionAnalysis(query) {

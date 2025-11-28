@@ -166,6 +166,14 @@ def get_recruit_skill_analysis(request: recruit_statistics_request):
     # 直接传递 request 参数，无需转换
     return AjaxResponse.from_success(data=recruit_info_service.get_recruit_skill_analysis(request))
 
+"""招聘信息技能工资统计"""
+@gen.route('/statistics/skill/salary', methods=['GET'])
+@QueryValidator()
+@PreAuthorize(HasPerm('recruit:recruit:statistics'))
+@JsonSerializer()
+def get_recruit_skill_salary_analysis(request: recruit_statistics_request):
+    # 直接传递 request 参数，无需转换
+    return AjaxResponse.from_success(data=recruit_info_service.get_recruit_skill_salary_analysis(request))
 
 """招聘信息分布统计"""
 @gen.route('/statistics/distribution', methods=['GET'])

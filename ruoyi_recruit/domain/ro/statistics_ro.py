@@ -6,3 +6,13 @@ class statistics_ro(BaseModel):
     """
     value: int
     name: str
+
+class statistics_salary_ro(BaseModel):
+    """
+    统计列表对象
+    """
+    value: int
+    name: str
+    min_salary: float
+    max_salary: float
+    avg_salary: float

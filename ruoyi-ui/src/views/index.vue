@@ -33,7 +33,8 @@
                       :chart-name="recruitDistributionName"/>
     </div>
     <div class="chart-wrapper" style="height: 100vh">
-      <ScatterAvgCharts
+      <ScatterAvgCharts :chart-data="killAnalysisSalaryData"
+                        :chart-name="killAnalysisSalaryName"
       />
     </div>
 
@@ -46,7 +47,7 @@ import LineChart from './dashboard/LineChart'
 import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
-import {recruitDistributionAnalysis, recruitSkillAnalysis} from "@/api/recruit/statistics";
+import {recruitDistributionAnalysis, recruitSkillAnalysis, recruitSkillSalaryAnalysis} from "@/api/recruit/statistics";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
@@ -87,16 +88,17 @@ export default {
       lineChartData: lineChartData.newVisitis,
       killAnalysisData: [],
       killAnalysisName: "求职技能分析",
+      killAnalysisSalaryData: [],
+      killAnalysisSalaryName: "技能职位与平均工资散点图",
       recruitDistributionData: {},
-      recruitDistributionName: "招聘信息分布"
+      recruitDistributionName: "招聘信息分布",
+
     }
   },
   created() {
     this.getKillAnalysisData()
-    recruitDistributionAnalysis({}).then(res => {
-      this.recruitDistributionData = res.data
-      console.log(this.recruitDistributionData)
-    })
+    this.getRecruitDistributionData()
+    this.getKillAnalysisSalaryData()
   },
   methods: {
     getKillAnalysisData() {
@@ -104,9 +106,27 @@ export default {
         this.killAnalysisData = res.data
       })
     },
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
-    }
+    getRecruitDistributionData() {
+      recruitDistributionAnalysis().then(res => {
+        this.recruitDistributionData = res.data
+      })
+    },
+    getKillAnalysisSalaryData() {
+      recruitSkillSalaryAnalysis().then(res => {
+        if (!res.data || !res.data.length) {
+          return
+        }
+        const data = res.data.map(item => {
+          return {
+            name: item.name,
+            xAxis: item.value,
+            yAxis: item.avgSalary,
+            tooltip: `平均工资：${item.avgSalary}\n最高工资：${item.maxSalary}\n最低工资：${item.minSalary}`
+          }
+        })
+        this.killAnalysisSalaryData = data
+      })
+    },
   }
 }
 </script>

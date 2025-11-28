@@ -305,7 +305,7 @@ export default {
               const name = params.value[2];
               const originalX = params.value[5];
               const tooltipStr = params.value[3];
-              const formattedTooltipStr = tooltipStr.replace(/，/g, '<br/>');
+              const formattedTooltipStr = tooltipStr.replace(/\n/g, '<br/>');
               return `${name}: ${originalX.toFixed(0)}<br/>${formattedTooltipStr}`;
             }
             if (params.seriesName === '所有技能平均工资') {

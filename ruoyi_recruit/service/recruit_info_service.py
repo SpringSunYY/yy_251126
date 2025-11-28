@@ -11,8 +11,9 @@ from ruoyi_common.utils.base import LogUtil
 from ruoyi_framework.descriptor import custom_cacheable
 from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
+from ruoyi_recruit.domain.ro.statistics_ro import statistics_salary_ro
 from ruoyi_recruit.domain.vo import relation_statistics_vo
-from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo
+from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo, statistics_salary_vo
 from ruoyi_recruit.mapper.recruit_info_mapper import recruit_info_mapper
 import re
 
@@ -239,6 +240,65 @@ class recruit_info_service:
         # 遍历结果集，返回一个统计对象列表，根据技能value排序，取前一百
         skill_counts = sorted(skill_counts.items(), key=lambda x: x[1], reverse=True)[:result_size]
         return [statistics_vo(name=name, value=count) for name, count in skill_counts]
+
+    @custom_cacheable(
+        key_prefix="recruit:statistics:skill:salary:analysis",
+        use_query_params_as_key=True,
+        expire_time=5 * 60
+    )
+    def get_recruit_skill_salary_analysis(self, request: recruit_statistics_request, result_size: int = 100) -> List[
+        statistics_salary_vo]:
+        """
+        获取招聘信息表技能工资分析
+        """
+        statistics_salary_ros = recruit_info_mapper.get_recruit_skill_salary_statistics(request)
+
+        # 使用字典聚合相同技能
+        skill_map = {}
+
+        for statistics_salary_ro in statistics_salary_ros:
+            if not statistics_salary_ro.name:
+                continue
+
+            skills = [skill.strip() for skill in statistics_salary_ro.name.split(",") if skill.strip()]
+
+            for skill in skills:
+                if skill not in skill_map:
+                    # 初始化技能统计信息
+                    # 平均工资精确两位小数
+                    avg_salary = round(statistics_salary_ro.avg_salary)
+                    skill_map[skill] = {
+                        'count': 0,
+                        'min_salary': statistics_salary_ro.min_salary,
+                        'max_salary': statistics_salary_ro.max_salary,
+                        'avg_salary': avg_salary
+                    }
+                else:
+                    # 比较并更新最大最小值
+                    stat = skill_map[skill]
+                    stat['min_salary'] = min(stat['min_salary'], statistics_salary_ro.min_salary)
+                    stat['max_salary'] = max(stat['max_salary'], statistics_salary_ro.max_salary)
+                    # 重新计算平均工资
+                    avg_salary = round((stat['avg_salary'] * stat['count'] + statistics_salary_ro.avg_salary) / (
+                            stat['count'] + 1), 2)
+                    stat['avg_salary'] = avg_salary
+
+                skill_map[skill]['count'] += 1
+
+        # 构建结果列表
+        result = []
+        for skill_name, stat in skill_map.items():
+            result.append(statistics_salary_vo(
+                name=skill_name,
+                value=stat['count'],
+                minSalary=stat['min_salary'],
+                maxSalary=stat['max_salary'],
+                avgSalary=stat['avg_salary']
+            ))
+
+        # 按出现次数排序并限制结果数量
+        result.sort(key=lambda x: x.value, reverse=True)
+        return result[:result_size]
 
     @custom_cacheable(
         key_prefix="recruit:statistics:distribution:analysis",
