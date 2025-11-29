@@ -246,7 +246,7 @@ class recruit_info_service:
         use_query_params_as_key=True,
         expire_time=5 * 60
     )
-    def get_recruit_skill_salary_analysis(self, request: recruit_statistics_request, result_size: int = 100) -> List[
+    def get_recruit_skill_salary_analysis(self, request: recruit_statistics_request, result_size: int = 200) -> List[
         statistics_salary_vo]:
         """
         获取招聘信息表技能工资分析

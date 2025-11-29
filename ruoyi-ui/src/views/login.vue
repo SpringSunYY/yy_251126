@@ -74,7 +74,7 @@ export default {
       loginForm: {
         username: 'admin',
         password: 'admin123',
-        rememberMe: false,
+        rememberMe: true,
         code: '',
         uuid: ''
       },
@@ -91,7 +91,7 @@ export default {
       // 验证码开关
       captchaOnOff: false,
       // 注册开关
-      register: false,
+      register: true,
       redirect: undefined
     }
   },

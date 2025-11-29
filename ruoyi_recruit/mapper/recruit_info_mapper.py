@@ -243,6 +243,8 @@ class recruit_info_mapper:
         stmt = stmt.where(recruit_info_po.skill_required.isnot(None))
         # 只统计有薪资数据的记录
         stmt = stmt.where(recruit_info_po.salary_month_min.isnot(None))
+        stmt = stmt.where(recruit_info_po.salary_month_max.isnot(None))
+        stmt = stmt.where(recruit_info_po.salary_month_avg.isnot(None))
         stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
         result = db.session.execute(stmt).fetchall()
         # 处理 None 值，如果为 None 则使用 0.0（理论上不会出现，因为已经过滤了）

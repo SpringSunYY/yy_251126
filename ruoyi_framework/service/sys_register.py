@@ -8,6 +8,7 @@ from ruoyi_common.constant import Constants, UserConstants
 from ruoyi_common.exception import CaptchaException, CaptchaExpireException
 from ruoyi_common.domain.entity import SysUser
 from ruoyi_system.service import SysUserService
+from ruoyi_system.mapper import SysUserMapper
 from ruoyi_admin.ext import redis_cache
 
 # todo
@@ -42,7 +43,7 @@ class RegisterService:
             msg = "Account length must be between 2 and 20 characters"
         elif len(password) < UserConstants.PASSWORD_MIN_LENGTH or len(password) > UserConstants.PASSWORD_MAX_LENGTH:
             msg = "Password length must be between 5 and 20 characters"
-        elif UserConstants.NOT_UNIQUE == SysUserService.check_user_name_unique(username):
+        elif SysUserMapper.check_user_name_unique(username) > 0:
             msg = f"Failed to save user '{username}', registration account already exists"
         else:
             sys_user = SysUser(
