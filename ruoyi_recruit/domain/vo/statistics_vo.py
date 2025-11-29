@@ -10,6 +10,16 @@ class statistics_vo(BaseModel):
     value: int
     name: str
 
+
+class statistics_tooltip_vo(BaseModel):
+    """
+    统计总数对象
+    """
+    value: int
+    name: str
+    tooltips: List[statistics_vo]
+
+
 class statistics_salary_vo(BaseModel):
     """
     统计总数对象

@@ -7,6 +7,14 @@ class statistics_ro(BaseModel):
     value: int
     name: str
 
+class statistics_business_ro(BaseModel):
+    """
+    统计列表对象
+    """
+    value: int
+    business: str
+    skill: str
+
 class statistics_salary_ro(BaseModel):
     """
     统计列表对象

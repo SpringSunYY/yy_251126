@@ -39,8 +39,8 @@
     </div>
     <div class="chart-wrapper" style="height: 100vh">
       <KeywordTooltipCharts
-        :chart-data="killAnalysisData"
-        :chart-name="killAnalysisName"
+        :chart-data="recruitBusinessSkillAnalysisData"
+        :chart-name="recruitBusinessSkillAnalysisName"
       />
     </div>
     <div class="chart-wrapper" style="height: 100vh">
@@ -59,7 +59,12 @@ import LineChart from './dashboard/LineChart'
 import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
-import {recruitDistributionAnalysis, recruitSkillAnalysis, recruitSkillSalaryAnalysis} from "@/api/recruit/statistics";
+import {
+  recruitBusinessSkillAnalysis,
+  recruitDistributionAnalysis,
+  recruitSkillAnalysis,
+  recruitSkillSalaryAnalysis
+} from "@/api/recruit/statistics";
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
@@ -108,13 +113,15 @@ export default {
       killAnalysisSalaryName: "技能职位与平均工资散点图",
       recruitDistributionData: {},
       recruitDistributionName: "招聘信息分布",
-
+      recruitBusinessSkillAnalysisData: [],
+      recruitBusinessSkillAnalysisName: "招聘信息技能分析",
     }
   },
   created() {
     this.getKillAnalysisData()
     this.getRecruitDistributionData()
     this.getKillAnalysisSalaryData()
+    this.getRecruitBusinessSkillAnalysisData()
   },
   methods: {
     handleSetLineChartData(type) {
@@ -146,6 +153,29 @@ export default {
         this.killAnalysisSalaryData = data
       })
     },
+    getRecruitBusinessSkillAnalysisData() {
+      recruitBusinessSkillAnalysis().then(res => {
+        const data = res.data.map(item => {
+          if (item.tooltips) {
+            let tooltip = `行业所需技能:\n`
+            item.tooltips.forEach(skill => {
+              tooltip += `${skill.name}：${skill.value}\n`
+            })
+            return {
+              name: item.name,
+              value: item.value,
+              tooltip: tooltip
+            }
+          } else {
+            return {
+              name: item.name,
+              value: item.value
+            }
+          }
+        })
+        this.recruitBusinessSkillAnalysisData = data
+      })
+    }
   }
 }
 </script>

@@ -4,7 +4,7 @@
 # @Time    : 2025-11-26 18:15:10
 
 from typing import List
-from collections import Counter
+from collections import Counter, defaultdict
 
 from ruoyi_common.exception import ServiceException
 from ruoyi_common.utils.base import LogUtil
@@ -13,7 +13,7 @@ from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.domain.ro.statistics_ro import statistics_salary_ro
 from ruoyi_recruit.domain.vo import relation_statistics_vo
-from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo, statistics_salary_vo
+from ruoyi_recruit.domain.vo.statistics_vo import statistics_vo, statistics_salary_vo, statistics_tooltip_vo
 from ruoyi_recruit.mapper.recruit_info_mapper import recruit_info_mapper
 import re
 
@@ -384,5 +384,64 @@ class recruit_info_service:
             return ""
         cleaned = re.sub(r'\s+|\(.*?\)', '', name).strip()
         return cleaned if cleaned and len(cleaned) <= 10 else ""
+
+    def get_recruit_business_skill_analysis(self, request) -> List[statistics_tooltip_vo]:
+        """
+        获取招聘信息中的技能分析
+        """
+        ros = recruit_info_mapper.get_recruit_business_skill_analysis(request)
+        # 创建一个映射：业务 -> {"业务","数量",{技能：数量}}
+        business_map = {}
+
+        for vo in ros:
+            if not vo.business or not vo.skill:
+                continue
+
+            # 拆分业务名（通常以 / 分隔）
+            business_list = vo.business.split("/")
+            skill_list = vo.skill.split(",")
+
+            for business in business_list:
+                business = business.strip()
+                if not business:
+                    continue
+
+                # 初始化 business_entry
+                if business not in business_map:
+                    business_map[business] = {"value": 0, "skills": defaultdict(int)}
+
+                business_entry = business_map[business]
+                business_entry["value"] += vo.value
+
+                for skill in skill_list:
+                    skill = skill.strip()
+                    if not skill:
+                        continue
+                    business_entry["skills"][skill] += vo.value
+
+        # 将结果转换为所需的格式
+        result = []
+        for business, entry in business_map.items():
+            skills = entry["skills"]
+            skill_list = [
+                statistics_vo(name=skill, value=skills[skill])  # 使用 statistics_vo 而不是 statistics_tooltip_vo
+                for skill in skills
+            ]
+            result.append(
+                statistics_tooltip_vo(name=business, value=entry["value"], tooltips=skill_list)
+            )
+        # 解析行业只要前一百，根据value排序
+        result = sorted(result, key=lambda x: x.value, reverse=True)[:100]
+
+        # 解析技能只要前十，根据value排序
+        result = [
+            statistics_tooltip_vo(
+                name=item.name,
+                value=item.value,
+                tooltips=sorted(item.tooltips, key=lambda x: x.value, reverse=True)[:10]
+            )
+            for item in result
+        ]
+        return result
 
 # endregion

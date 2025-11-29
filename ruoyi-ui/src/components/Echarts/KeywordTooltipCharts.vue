@@ -216,7 +216,7 @@ export default {
           backgroundColor: 'rgba(0,0,0,0.2)',
           style: {
             color: '#fff',
-            fontSize: '12px'
+            fontSize: '16px'
           },
           formatter: function () {
             const point = this.point;

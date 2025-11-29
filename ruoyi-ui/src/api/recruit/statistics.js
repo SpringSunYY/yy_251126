@@ -26,3 +26,14 @@ export function recruitDistributionAnalysis(query) {
     params: query
   })
 }
+
+
+//招聘信业务技能/statistics/business/skill
+export function recruitBusinessSkillAnalysis(query) {
+  return request({
+    url: '/recruit/recruit/statistics/business/skill',
+    method: 'get',
+    params: query
+  })
+}
+

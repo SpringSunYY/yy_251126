@@ -14,7 +14,7 @@ from ruoyi_recruit.domain.dto import recruit_statistics_request
 from ruoyi_recruit.domain.entity import recruit_info
 from ruoyi_recruit.domain.po import recruit_info_po
 from ruoyi_recruit.domain.ro import statistics_ro
-from ruoyi_recruit.domain.ro.statistics_ro import statistics_salary_ro
+from ruoyi_recruit.domain.ro.statistics_ro import statistics_salary_ro, statistics_business_ro
 
 
 class recruit_info_mapper:
@@ -249,10 +249,10 @@ class recruit_info_mapper:
         result = db.session.execute(stmt).fetchall()
         # 处理 None 值，如果为 None 则使用 0.0（理论上不会出现，因为已经过滤了）
         return [statistics_salary_ro(
-            value=row.value, 
-            name=row.name, 
-            min_salary=float(row.min_salary) if row.min_salary is not None else 0.0, 
-            max_salary=float(row.max_salary) if row.max_salary is not None else 0.0, 
+            value=row.value,
+            name=row.name,
+            min_salary=float(row.min_salary) if row.min_salary is not None else 0.0,
+            max_salary=float(row.max_salary) if row.max_salary is not None else 0.0,
             avg_salary=float(row.avg_salary) if row.avg_salary is not None else 0.0
         ) for row in result]
 
@@ -295,3 +295,25 @@ class recruit_info_mapper:
         stmt = stmt.where(recruit_info_po.post.isnot(None))
         stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
         return [statistics_ro(value=row.value, name=row.name) for row in db.session.execute(stmt).fetchall()]
+
+    @classmethod
+    def get_recruit_business_skill_analysis(cls, request) -> List[statistics_business_ro]:
+        """
+        获取招聘信息职位技能分析
+        select count(*)       as value,
+       main_business AS business,
+       skill_required AS skill
+        from tb_recruit_info
+        group by main_business,skill_required
+        order by avg(salary_month_min) asc ;
+        """
+        stmt = select(
+            func.count().label('value'),
+            recruit_info_po.main_business.label('business'),
+            recruit_info_po.skill_required.label('skill')
+        ).group_by(recruit_info_po.main_business, recruit_info_po.skill_required)
+        stmt = stmt.where(recruit_info_po.skill_required.isnot(None))
+        stmt = stmt.where(recruit_info_po.main_business.isnot(None))
+        stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
+        ros = db.session.execute(stmt).fetchall()
+        return [statistics_business_ro(value=row.value, business=row.business, skill=row.skill) for row in ros]
