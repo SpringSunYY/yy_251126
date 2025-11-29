@@ -43,6 +43,12 @@
         :chart-name="killAnalysisName"
       />
     </div>
+    <div class="chart-wrapper" style="height: 100vh">
+      <ScatterRandomCharts
+        :chart-data="killAnalysisData"
+        :chart-name="killAnalysisName"
+      />
+    </div>
 
   </div>
 </template>
@@ -58,6 +64,7 @@ import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue"
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
 import KeywordTooltipCharts from "@/components/Echarts/KeywordTooltipCharts.vue";
+import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -81,6 +88,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    ScatterRandomCharts,
     KeywordTooltipCharts,
     ScatterAvgCharts,
     RelationCharts,
