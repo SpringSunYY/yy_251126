@@ -296,8 +296,7 @@ class recruit_info_mapper:
         stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
         return [statistics_ro(value=row.value, name=row.name) for row in db.session.execute(stmt).fetchall()]
 
-    @classmethod
-    def get_recruit_business_skill_analysis(cls, request) -> List[statistics_business_ro]:
+    def get_recruit_business_skill_analysis( request) -> List[statistics_business_ro]:
         """
         获取招聘信息职位技能分析
         select count(*)       as value,
@@ -317,3 +316,36 @@ class recruit_info_mapper:
         stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
         ros = db.session.execute(stmt).fetchall()
         return [statistics_business_ro(value=row.value, business=row.business, skill=row.skill) for row in ros]
+
+    def get_recruit_business_salary_analysis(request)->List[statistics_salary_ro]:
+        """
+        获取招聘信息职位技能分析
+        select count(*)       as value,
+           avg(salary_month_avg),
+           max(salary_month_max),
+           min(salary_month_min),
+           main_business AS name
+        from tb_recruit_info
+        group by main_business
+        order by avg(salary_month_min) asc ;
+        """
+        stmt = select(
+            func.count().label('value'),
+            func.avg(recruit_info_po.salary_month_avg).label('avg_salary'),
+            func.max(recruit_info_po.salary_month_max).label('max_salary'),
+            func.min(recruit_info_po.salary_month_min).label('min_salary'),
+            recruit_info_po.main_business.label('name')
+        ).group_by(recruit_info_po.main_business)
+        stmt = stmt.where(recruit_info_po.main_business.isnot(None))
+        stmt = stmt.where(recruit_info_po.salary_month_min.isnot(None))
+        stmt = stmt.where(recruit_info_po.salary_month_max.isnot(None))
+        stmt = stmt.where(recruit_info_po.salary_month_avg.isnot(None))
+        stmt = recruit_info_mapper.builder_statistics_query(request, stmt)
+        result=db.session.execute(stmt).fetchall()
+        return [statistics_salary_ro(
+            value=row.value,
+            name=row.name,
+            min_salary=float(row.min_salary) if row.min_salary is not None else 0.0,
+            max_salary=float(row.max_salary) if row.max_salary is not None else 0.0,
+            avg_salary=float(row.avg_salary) if row.avg_salary is not None else 0.0
+        ) for row in result]

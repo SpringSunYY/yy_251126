@@ -45,8 +45,8 @@
     </div>
     <div class="chart-wrapper" style="height: 100vh">
       <ScatterRandomCharts
-        :chart-data="killAnalysisData"
-        :chart-name="killAnalysisName"
+        :chart-data="recruitBusinessSkillSalaryData"
+        :chart-name="recruitBusinessSkillSalaryName"
       />
     </div>
 
@@ -60,6 +60,7 @@ import RaddarChart from './dashboard/RaddarChart'
 import PieChart from './dashboard/PieChart'
 import BarChart from './dashboard/BarChart'
 import {
+  recruitBusinessSalaryAnalysis,
   recruitBusinessSkillAnalysis,
   recruitDistributionAnalysis,
   recruitSkillAnalysis,
@@ -114,13 +115,16 @@ export default {
       recruitDistributionData: {},
       recruitDistributionName: "招聘信息分布",
       recruitBusinessSkillAnalysisData: [],
-      recruitBusinessSkillAnalysisName: "招聘信息技能分析",
+      recruitBusinessSkillAnalysisName: "招聘信息行业所需技能分析",
+      recruitBusinessSkillSalaryName: "招聘信息行业薪资分析",
+      recruitBusinessSkillSalaryData: [],
     }
   },
   created() {
     this.getKillAnalysisData()
     this.getRecruitDistributionData()
     this.getKillAnalysisSalaryData()
+    this.getRecruitBusinessSkillSalaryData()
     this.getRecruitBusinessSkillAnalysisData()
   },
   methods: {
@@ -142,7 +146,7 @@ export default {
         if (!res.data || !res.data.length) {
           return
         }
-        const data = res.data.map(item => {
+        this.killAnalysisSalaryData = res.data.map(item => {
           return {
             name: item.name,
             xAxis: item.value,
@@ -150,12 +154,26 @@ export default {
             tooltip: `平均工资：${item.avgSalary}\n最高工资：${item.maxSalary}\n最低工资：${item.minSalary}`
           }
         })
-        this.killAnalysisSalaryData = data
       })
     },
+    getRecruitBusinessSkillSalaryData() {
+      recruitBusinessSalaryAnalysis().then(res => {
+        if (!res.data || !res.data.length) {
+          return
+        }
+        this.recruitBusinessSkillSalaryData = res.data.map(item => {
+          return {
+            name: item.name,
+            value: item.maxSalary,
+            tooltip: `平均工资：${item.avgSalary}\n最高工资：${item.maxSalary}\n最低工资：${item.minSalary}`
+          }
+        })
+      })
+    },
+
     getRecruitBusinessSkillAnalysisData() {
       recruitBusinessSkillAnalysis().then(res => {
-        const data = res.data.map(item => {
+        this.recruitBusinessSkillAnalysisData = res.data.map(item => {
           if (item.tooltips) {
             let tooltip = `行业所需技能:\n`
             item.tooltips.forEach(skill => {
@@ -173,7 +191,6 @@ export default {
             }
           }
         })
-        this.recruitBusinessSkillAnalysisData = data
       })
     }
   }
@@ -183,7 +200,7 @@ export default {
 <style lang="scss" scoped>
 .dashboard-editor-container {
   padding: 32px;
-  background-color: rgb(240, 242, 245);
+  background-color: rgb(0, 82, 255);
   position: relative;
 
   .chart-wrapper {

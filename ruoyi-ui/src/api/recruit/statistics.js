@@ -37,3 +37,12 @@ export function recruitBusinessSkillAnalysis(query) {
   })
 }
 
+//招聘信息业务工资
+export function recruitBusinessSalaryAnalysis(query) {
+  return request({
+    url: '/recruit/recruit/statistics/business/salary',
+    method: 'get',
+    params: query
+  })
+}
+

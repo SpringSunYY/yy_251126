@@ -256,11 +256,29 @@ class recruit_info_service:
         # 使用字典聚合相同技能
         skill_map = {}
 
+        self.buider_salary_analysis(skill_map, statistics_salary_ros)
+
+        # 构建结果列表
+        result = []
+        for skill_name, stat in skill_map.items():
+            result.append(statistics_salary_vo(
+                name=skill_name,
+                value=stat['count'],
+                minSalary=stat['min_salary'],
+                maxSalary=stat['max_salary'],
+                avgSalary=stat['avg_salary']
+            ))
+
+        # 按出现次数排序并限制结果数量
+        result.sort(key=lambda x: x.value, reverse=True)
+        return result[:result_size]
+
+    def buider_salary_analysis(self, skill_map, statistics_salary_ros, split_str=','):
         for statistics_salary_ro in statistics_salary_ros:
             if not statistics_salary_ro.name:
                 continue
 
-            skills = [skill.strip() for skill in statistics_salary_ro.name.split(",") if skill.strip()]
+            skills = [skill.strip() for skill in statistics_salary_ro.name.split(split_str) if skill.strip()]
 
             for skill in skills:
                 if skill not in skill_map:
@@ -284,21 +302,6 @@ class recruit_info_service:
                     stat['avg_salary'] = avg_salary
 
                 skill_map[skill]['count'] += 1
-
-        # 构建结果列表
-        result = []
-        for skill_name, stat in skill_map.items():
-            result.append(statistics_salary_vo(
-                name=skill_name,
-                value=stat['count'],
-                minSalary=stat['min_salary'],
-                maxSalary=stat['max_salary'],
-                avgSalary=stat['avg_salary']
-            ))
-
-        # 按出现次数排序并限制结果数量
-        result.sort(key=lambda x: x.value, reverse=True)
-        return result[:result_size]
 
     @custom_cacheable(
         key_prefix="recruit:statistics:distribution:analysis",
@@ -442,6 +445,27 @@ class recruit_info_service:
             )
             for item in result
         ]
+        return result
+
+    def get_recruit_business_salary_analysis(self, request) -> List[statistics_salary_vo]:
+        """
+        获取招聘信息中的行业工资分析
+        """
+        ros = recruit_info_mapper.get_recruit_business_salary_analysis(request)
+        # 使用字典存储结果
+        business_map = {}
+        self.buider_salary_analysis(business_map, ros, "/")
+
+        # 构建结果列表
+        result = []
+        for business, stat in business_map.items():
+            result.append(statistics_salary_vo(
+                name=business,
+                value=stat['count'],
+                minSalary=stat['min_salary'],
+                maxSalary=stat['max_salary'],
+                avgSalary=stat['avg_salary']
+            ))
         return result
 
 # endregion
