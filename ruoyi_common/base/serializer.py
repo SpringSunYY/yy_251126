@@ -193,6 +193,8 @@ def handle_http_exception(error: HTTPException) -> Response:
 def handle_util_exception(error: UtilException) -> Response:
     """
     处理业务工具类异常，保持和若依Java版一致的json结构
+    注意：HTTP状态码始终返回200，业务状态码放在响应体的code字段中
+    这样前端可以正确读取msg字段，而不是显示"接口XXX异常"
     """
     status = getattr(error, "status", HttpStatus.ERROR)
     ajax_response = AjaxResponse.from_error(msg=str(error))
@@ -202,7 +204,7 @@ def handle_util_exception(error: UtilException) -> Response:
             exclude_unset=True,
             exclude_none=True,
         ),
-        status=status,
+        status=HttpStatus.SUCCESS,  # HTTP状态码始终返回200，业务状态码在响应体的code中
         mimetype="application/json"
     )
     return response

@@ -7,6 +7,8 @@ from flask_login import UserMixin
 
 from ruoyi_common.domain.entity import LoginUser
 from ruoyi_common.utils import security_util as SecurityUtil
+from ruoyi_common.utils.base import UtilException
+from ruoyi_common.constant import HttpStatus
 
 
 class PermissionService:
@@ -237,8 +239,8 @@ class PreAuthorize:
         @wraps(func)
         def wrapper(*args, **kwargs):
             if not callable(self._auth):
-                raise Exception("权限验证器必须是可调用对象")
+                raise UtilException("权限验证器必须是可调用对象", HttpStatus.ERROR)
             if not self._auth():
-                raise Exception("无访问权限")
+                raise UtilException("无访问权限", HttpStatus.FORBIDDEN)
             return func(*args, **kwargs)
         return wrapper
