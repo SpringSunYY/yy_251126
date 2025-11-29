@@ -13,7 +13,7 @@ from ... import reg
 @reg.api.route("/register", methods=["POST"])
 @BodyValidator()
 @JsonSerializer()
-def index_register(dto:RegisterBody):
+def index_register(dto: RegisterBody):
     '''
     注册接口
     '''

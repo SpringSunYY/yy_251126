@@ -37,6 +37,12 @@
                         :chart-name="killAnalysisSalaryName"
       />
     </div>
+    <div class="chart-wrapper" style="height: 100vh">
+      <KeywordTooltipCharts
+        :chart-data="killAnalysisData"
+        :chart-name="killAnalysisName"
+      />
+    </div>
 
   </div>
 </template>
@@ -51,6 +57,7 @@ import {recruitDistributionAnalysis, recruitSkillAnalysis, recruitSkillSalaryAna
 import KeywordGravityCharts from "@/components/Echarts/KeywordGravityCharts.vue";
 import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
+import KeywordTooltipCharts from "@/components/Echarts/KeywordTooltipCharts.vue";
 
 const lineChartData = {
   newVisitis: {
@@ -74,6 +81,7 @@ const lineChartData = {
 export default {
   name: 'Index',
   components: {
+    KeywordTooltipCharts,
     ScatterAvgCharts,
     RelationCharts,
     KeywordGravityCharts: KeywordGravityCharts,
@@ -101,6 +109,9 @@ export default {
     this.getKillAnalysisSalaryData()
   },
   methods: {
+    handleSetLineChartData(type) {
+      this.lineChartData = lineChartData[type]
+    },
     getKillAnalysisData() {
       recruitSkillAnalysis().then(res => {
         this.killAnalysisData = res.data
