@@ -5,54 +5,13 @@
 <script>
 // 引入 Highcharts 核心库
 import Highcharts from 'highcharts';
-
-// 必须引入词云图模块
-// highcharts 模块是 UMD 格式，在 webpack 中需要使用 require
-const wordcloudModule = require('highcharts/modules/wordcloud');
-const exportingModule = require('highcharts/modules/exporting');
-const fullscreenModule = require('highcharts/modules/full-screen');
-
-// 尝试多种可能的导出格式
-const getModuleFunction = (module) => {
-  if (typeof module === 'function') {
-    return module;
-  }
-  if (module && typeof module.default === 'function') {
-    return module.default;
-  }
-  if (module && module.__esModule && module.default) {
-    return module.default;
-  }
-  if (module && typeof module === 'object') {
-    for (const key in module) {
-      if (typeof module[key] === 'function') {
-        return module[key];
-      }
-    }
-  }
-  return module;
-};
-
-const WordCloud = getModuleFunction(wordcloudModule);
-const Exporting = getModuleFunction(exportingModule);
-const FullScreen = getModuleFunction(fullscreenModule);
-
-// 应该确保在使用前正确初始化模块
-if (typeof WordCloud === 'function') {
-  WordCloud(Highcharts);
-} else {
-  console.error('无法初始化 WordCloud 模块，模块类型:', typeof WordCloud, WordCloud);
-}
-
-if (typeof Exporting === 'function') {
-  Exporting(Highcharts);
-}
-
-if (typeof FullScreen === 'function') {
-  FullScreen(Highcharts);
-}
-
 import {generateRandomColor} from "@/utils/ruoyi";
+
+// Highcharts 10.x 版本的模块导入方式
+// 使用 require 导入模块（Highcharts 10.x 兼容性更好）
+require('highcharts/modules/wordcloud')(Highcharts);
+require('highcharts/modules/exporting')(Highcharts);
+require('highcharts/modules/full-screen')(Highcharts);
 
 // 原始数据
 const RAW_DATA = [
@@ -119,6 +78,10 @@ export default {
         '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
       ]
     },
+    backgroundColor: {
+      type: String,
+      default: 'transparent'
+    },
   },
 
   // 数据状态
@@ -174,7 +137,7 @@ export default {
     },
 
     /**
-     * @description 重新初始化图表 (对应 ECharts 的 restore)
+     * @description 重新初始化图表
      */
     resetChart() {
       // 销毁旧图表并重新初始化，确保所有状态回到最初
@@ -188,6 +151,7 @@ export default {
       this.processedData = this.processData(data);
       this.initChart();
     },
+
     /**
      * @description 初始化 Highcharts 图表
      */
@@ -209,10 +173,12 @@ export default {
       const chartContainer = this.$refs.chartRef;
 
       const options = {
+        backgroundColor: this.backgroundColor,
         title: {text: this.chartName},
         credits: {enabled: false},
         tooltip: {
           enabled: true,
+          borderWidth: 0,
           backgroundColor: 'rgba(0,0,0,0.2)',
           style: {
             color: '#fff',

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import * as echarts from 'echarts';
+import echarts from 'echarts';
 
 const defaultChartData = [
   {xAxis: 2, yAxis: 22500.00, name: '新车', tooltip: '平均工资：22500.00，最高工资：30000.00，最低工资：15000.00'},

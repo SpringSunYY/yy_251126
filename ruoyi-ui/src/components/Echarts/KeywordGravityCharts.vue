@@ -4,7 +4,7 @@
 
 <script>
 // 引入 ECharts 库
-import * as echarts from 'echarts';
+import echarts from 'echarts';
 import {generateRandomColor} from "@/utils/ruoyi";
 
 export default {

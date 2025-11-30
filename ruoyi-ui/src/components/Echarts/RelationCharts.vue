@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import * as echarts from 'echarts';
+import echarts from 'echarts';
 
 // 经验层自动生成方法
 function expWrap(jobValue, skills) {
