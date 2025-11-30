@@ -130,7 +130,7 @@ export default {
     height: {type: String, default: '100%'},
     chartName: {type: String, default: '技能职位与平均工资散点图'},
     chartData: {type: Array, default: () => defaultChartData},
-    symbolScale: {type: Number, default: 10}
+    symbolScale: {type: Number, default: 2}
   },
 
   data() {
@@ -139,7 +139,7 @@ export default {
       rawDataCache: [],
       globalAvgX: 0, // 全局平均职位总数，用于总览模式下的筛选阈值
       // 放大阈值：dataZoom 范围小于 90% 时，认为是“已放大”
-      zoomThreshold: 90
+      zoomThreshold: 100
     };
   },
 
@@ -294,7 +294,7 @@ export default {
         ],
         visualMap: {
           min: minSalary, max: maxSalary, dimension: 4,
-          orient: 'vertical', right: 10, top: 'center',
+          orient: 'vertical', right: 2, top: 'center',
           text: ['最大值', '最小值'], calculable: true,
           textStyle: {color: '#fff'},
           inRange: {color: ['#A3E4D7', '#117A65']}
@@ -327,7 +327,7 @@ export default {
           color: 'black',
           axisLabel: {formatter: '{value} 元', color: '#ffffff'}, splitLine: {show: true}
         },
-        grid: {left: '10%', right: '15%', bottom: '10%', containLabel: true},
+        grid: {left: '2%', right: '12%', bottom: '10%', containLabel: true},
 
         series: [
           {

@@ -35,7 +35,8 @@ export default {
 <style scoped lang="scss">
 .relation-container {
   margin-top: -10px; // 抵消默认间距
-  height: 92vh;
+  padding-top: 10px; // 添加适当内边距
+  min-height: 92vh;
   width: 100%;
 }
 </style>

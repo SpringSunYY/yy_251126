@@ -7,31 +7,28 @@
 
 <script>
 import * as echarts from 'echarts';
-import { getGeoJson } from '@/api/file.js';
+import {getGeoJson} from '@/api/file.js';
 
 export default {
   name: 'MapCharts',
   props: {
-    className: { type: String, default: 'chart' },
-    width: { type: String, default: '100%' },
-    height: { type: String, default: '100%' },
-    initCountry: { type: String, default: 'china' },
-    initName: { type: String, default: '中华人民共和国' },
-    chartName: { type: String, default: '用户分布' },
-    // 图表数据
+    className: {type: String, default: 'chart'},
+    width: {type: String, default: '100%'},
+    height: {type: String, default: '100%'},
+    initCountry: {type: String, default: 'china'},
+    initName: {type: String, default: '中华人民共和国'},
+    chartName: {type: String, default: '用户分布'},
     chartData: {
       type: Array,
       default: () => [
-        { name: "用户人数", value: [{ location: "广东省", value: 1000 }] },
-        { name: "用户登录数", value: [{ location: "广东省", value: 1000 }] },
+        {name: "用户人数", value: [{location: "广东省", value: 1000}]},
+        {name: "用户登录数", value: [{location: "广东省", value: 1000}]},
       ]
     },
-    // 默认数据项名称
     defaultIndexName: {
       type: String,
       default: "用户人数"
     },
-    // 需要返回的层级
     returnLevel: {
       type: Array,
       default: () => ['province', 'china']
@@ -43,43 +40,36 @@ export default {
       chartTitle: this.chartName,
       geoJsonFeatures: [],
       showBack: false,
-      parentInfo: [], // 下钻历史：[{name, level}]
-      isChartReady: false, // 图表是否完全初始化标志
-      resizeTimer: null, // 防抖定时器
-      isRendering: false, // 渲染状态标志
+      parentInfo: [],
+      isChartReady: false,
+      resizeTimer: null,
+      isRendering: false,
     };
   },
   computed: {
-    // 计算默认数据项的索引
     defaultDataIndex() {
       const index = this.chartData.findIndex(item => item.name === this.defaultIndexName);
       return index >= 0 ? index : 0;
     },
-    // 获取默认数据项
     defaultDataItem() {
-      return this.chartData[this.defaultDataIndex] || this.chartData[0] || { name: '', value: [] };
+      return this.chartData[this.defaultDataIndex] || this.chartData[0] || {name: '', value: []};
     },
-    // 计算所有数据项的总计
     dataSummary() {
       const summary = {};
-      if (!this.chartData) return {};
+      if (!this.chartData) return summary;
       this.chartData.forEach(dataItem => {
         summary[dataItem.name] = dataItem.value.reduce((sum, item) => Number(sum) + (Number(item.value) || 0), 0);
       });
       return summary;
-    },
+    }
   },
   watch: {
-    // 监听 initName 变化
-    initName: {
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.initializeParentInfo();
-          this.loadMapData();
-        }
+    initName(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.initializeParentInfo();
+        this.loadMapData();
       }
     },
-    // 监听 chartData 变化，重新渲染地图
     chartData: {
       handler() {
         if (this.chart && this.isChartReady) {
@@ -88,27 +78,21 @@ export default {
       },
       deep: true
     },
-    // 监听 defaultIndexName 变化
-    defaultIndexName: {
-      handler() {
-        if (this.chart && this.isChartReady) {
-          this.renderMap();
-        }
+    defaultIndexName() {
+      if (this.chart && this.isChartReady) {
+        this.renderMap();
       }
     }
   },
   mounted() {
-    // 在 $nextTick 中确保 DOM 渲染完成
-    this.$nextTick(() => {
-      this.initChart();
-      // 图表初始化完成后延迟绑定 resize 事件
+    this.$nextTick(async () => {
+      await this.initChart();
       setTimeout(() => {
         this.bindResizeEvent();
       }, 1000);
     });
   },
   beforeDestroy() {
-    // 销毁实例+解绑事件，避免内存泄漏
     if (this.resizeTimer) {
       clearTimeout(this.resizeTimer);
       this.resizeTimer = null;
@@ -130,17 +114,14 @@ export default {
     this.isRendering = false;
   },
   methods: {
-    /**
-     * 层级推断逻辑
-     */
     formateLevel(currentLevel) {
       switch (currentLevel) {
-        case this.initCountry: // 国家（如 china）
-          return 'province'; // 下一级：省份
-        case 'province': // 省份
-          return 'city'; // 下一级
-        case 'city': // 城市
-          return 'county'; // 下一级
+        case this.initCountry:
+          return 'province';
+        case 'province':
+          return 'city';
+        case 'city':
+          return 'county';
         case 1:
           return 'province';
         case 2:
@@ -152,23 +133,16 @@ export default {
           return '';
       }
     },
-
-    /**
-     * 初始化下钻历史
-     */
     initializeParentInfo() {
       if (this.initName === '中华人民共和国') {
-        this.parentInfo = [{ name: '中华人民共和国', level: 'china' }];
+        this.parentInfo = [{name: '中华人民共和国', level: 'china'}];
       } else {
-        this.parentInfo = [{ name: this.initName, level: 'province' }];
+        this.parentInfo = [{name: this.initName, level: 'province'}];
       }
     },
-
-    /**
-     * 根据地区名称获取各项数据值
-     */
     getDataValuesByLocation(locationName) {
       const result = {};
+
       this.chartData.forEach(dataItem => {
         const locationData = dataItem.value.find(item =>
           item.location === locationName ||
@@ -177,19 +151,16 @@ export default {
         );
         result[dataItem.name] = locationData ? locationData.value : 0;
       });
+
       return result;
     },
-
-    /**
-     * 生成地图/散点数据
-     */
     getMapData() {
       if (this.geoJsonFeatures.length === 0) {
-        return { mapData: [], pointData: [] };
+        return {mapData: [], pointData: []};
       }
 
       const tmp = this.geoJsonFeatures.map(feature => {
-        const { name, fullname, adcode, level, center } = feature.properties || {};
+        const {name, fullname, adcode, level, center} = feature.properties || {};
         const dataValues = this.getDataValuesByLocation(fullname || name);
         const mainValue = dataValues[this.defaultDataItem.name] || 0;
 
@@ -231,12 +202,8 @@ export default {
         }, {})
       }));
 
-      return { mapData, pointData };
+      return {mapData, pointData};
     },
-
-    /**
-     * 生成动态的tooltip格式化器
-     */
     generateTooltipFormatter() {
       return (params) => {
         if (!params?.data) return '';
@@ -245,7 +212,6 @@ export default {
         let content = `<div style="text-align:left">
           ${d.fullname || d.name}<br/>`;
 
-        // 动态添加各个数据项
         this.chartData.forEach(dataItem => {
           const value = d[dataItem.name] || 0;
           content += `${dataItem.name}：${value} <br/>`;
@@ -253,7 +219,6 @@ export default {
 
         content += `<hr style="border:0;border-top:1px solid #666;margin:4px 0"/>`;
 
-        // 添加总计信息
         Object.entries(this.dataSummary).forEach(([name, total]) => {
           content += `总${name}：${total} <br/>`;
         });
@@ -262,10 +227,6 @@ export default {
         return content;
       };
     },
-
-    /**
-     * 生成动态的统计信息图形元素
-     */
     generateGraphicElements() {
       const summaryEntries = Object.entries(this.dataSummary);
       if (summaryEntries.length === 0) return [];
@@ -273,7 +234,6 @@ export default {
       const lineHeight = 20;
       const padding = 10;
       const totalHeight = summaryEntries.length * lineHeight + padding * 2;
-
       const textContent = summaryEntries.map(([name, total]) => `总${name}：${total}`).join('\n');
 
       return [
@@ -284,7 +244,7 @@ export default {
           children: [
             {
               type: 'rect',
-              shape: { width: 200, height: totalHeight, r: 8 },
+              shape: {width: 200, height: totalHeight, r: 8},
               style: {
                 fill: 'rgba(0,0,0,0.01)',
                 stroke: '#00cfff',
@@ -308,27 +268,21 @@ export default {
         }
       ];
     },
-
-    /**
-     * 渲染地图 - 使用动态数据
-     */
     renderMap() {
       if (!this.chart || this.isRendering) return;
 
       this.isRendering = true;
       const mapName = 'map';
 
-      // 1. 先注册地图
       if (this.geoJsonFeatures.length > 0) {
-        echarts.registerMap(mapName, { features: this.geoJsonFeatures });
+        echarts.registerMap(mapName, {features: this.geoJsonFeatures});
       }
 
-      const { mapData, pointData } = this.getMapData();
+      const {mapData, pointData} = this.getMapData();
       const values = mapData.map(d => d.value);
       const min = values.length ? Math.min(...values) : 0;
       const max = values.length ? Math.max(...values) : 10000;
 
-      // 处理 visualMap 极值相同的情况
       let visualMapMin = min;
       let visualMapMax = max;
       if (min === max) {
@@ -349,13 +303,19 @@ export default {
         }, {})
       }));
 
+      // 根据当前层级动态调整缩放参数
+      const currentInfo = this.parentInfo[this.parentInfo.length - 1];
+      const isChinaMap = currentInfo && currentInfo.level === 'china';
+      const layoutSize = isChinaMap ? '150%' : '90%';
+      const geoZoom = isChinaMap ? 1.25 : 1.0;
+      const layoutCenter = isChinaMap ? ['0%', '60%'] : ['42%', '50%'];
       const option = {
         animation: false,
         title: [{
           left: 'center',
           top: 10,
           text: this.chartTitle,
-          textStyle: { color: 'rgb(179, 239, 255)', fontSize: 16 }
+          textStyle: {color: 'rgb(179, 239, 255)', fontSize: 16}
         }],
         tooltip: {
           trigger: 'item',
@@ -363,18 +323,18 @@ export default {
           backgroundColor: 'rgba(60, 60, 60, 0.7)',
           borderColor: '#333',
           borderWidth: 1,
-          textStyle: { color: '#fff' }
+          textStyle: {color: '#fff'}
         },
         graphic: this.generateGraphicElements(),
         geo: {
           map: mapName,
           roam: true,
-          center: null,
-          layoutCenter: ['42%', '50%'],
-          layoutSize: '100%',
+          zoom: geoZoom,
+          layoutCenter: layoutCenter,
+          layoutSize: layoutSize,
           label: {
-            normal: { show: true, color: 'rgb(249, 249, 249)' },
-            emphasis: { show: true, color: '#f75a00' }
+            normal: {show: true, color: 'rgb(249, 249, 249)'},
+            emphasis: {show: true, color: '#f75a00'}
           },
           itemStyle: {
             normal: {
@@ -386,7 +346,7 @@ export default {
               shadowOffsetX: 0,
               shadowOffsetY: 6
             },
-            emphasis: { areaColor: '#8dd7fc', borderWidth: 1.6, shadowBlur: 25 }
+            emphasis: {areaColor: '#8dd7fc', borderWidth: 1.6, shadowBlur: 25}
           }
         },
         ...(barSeriesData.length > 0 ? {
@@ -402,24 +362,24 @@ export default {
           xAxis: {
             type: 'value',
             position: 'top',
-            axisLine: { lineStyle: { color: '#455B77' } },
-            axisTick: { show: false },
+            axisLine: {lineStyle: {color: '#455B77'}},
+            axisTick: {show: false},
             axisLabel: {
               interval: 'auto',
               rotate: 45,
-              textStyle: { color: '#ffffff' },
+              textStyle: {color: '#ffffff'},
               fontSize: 10
             },
             splitNumber: 5,
             minInterval: 'auto',
-            splitLine: { show: false },
+            splitLine: {show: false},
             show: true
           },
           yAxis: {
             type: 'category',
-            axisLine: { lineStyle: { color: '#ffffff' } },
-            axisTick: { show: false },
-            axisLabel: { textStyle: { color: '#c0e6f9' } },
+            axisLine: {lineStyle: {color: '#ffffff'}},
+            axisTick: {show: false},
+            axisLabel: {textStyle: {color: '#c0e6f9'}},
             data: yCategories,
             inverse: false,
             show: true
@@ -432,19 +392,17 @@ export default {
           bottom: '5%',
           calculable: true,
           seriesIndex: [0],
-          inRange: { color: ['#24CFF4', '#2E98CA', '#1E62AC'] },
-          textStyle: { color: '#24CFF4' },
+          inRange: {color: ['#24CFF4', '#2E98CA', '#1E62AC']},
+          textStyle: {color: '#24CFF4'},
         },
         series: [
-          // 地图系列
           {
             name: this.defaultDataItem.name,
             type: 'map',
             geoIndex: 0,
             map: mapName,
             roam: true,
-            zoom: 1.2,
-            label: { show: false },
+            label: {show: false},
             data: mapData,
             itemStyle: {
               normal: {
@@ -453,13 +411,12 @@ export default {
               }
             }
           },
-          // 散点系列
           {
             name: '散点',
             type: 'effectScatter',
             coordinateSystem: 'geo',
             geoIndex: 0,
-            rippleEffect: { brushType: 'fill' },
+            rippleEffect: {brushType: 'fill'},
             itemStyle: {
               color: '#F4E925',
               shadowBlur: 6,
@@ -475,7 +432,6 @@ export default {
             showEffectOn: 'render',
             data: pointData
           },
-          // 柱状图系列
           ...(barSeriesData.length > 0 ? [{
             name: '柱状',
             type: 'bar',
@@ -507,10 +463,6 @@ export default {
         this.isRendering = false;
       }
     },
-
-    /**
-     * 加载地图数据
-     */
     async loadMapData() {
       const currentInfo = this.parentInfo[this.parentInfo.length - 1];
       if (!currentInfo?.level) return;
@@ -535,19 +487,17 @@ export default {
         this.geoJsonFeatures = data.features || [];
         this.chartTitle = `${currentInfo.fullname || currentInfo.name}${this.chartName}`;
 
-        this.$nextTick(() => {
-          this.renderMap();
+        await this.$nextTick();
+        this.renderMap();
 
-          if (this.geoJsonFeatures.length === 0 && this.parentInfo.length > 1) {
-            console.warn('无下级数据，自动回退');
-            this.goBack();
-          }
-          //通知父组件
-          if (this.returnLevel.find(level => level === currentInfo?.level)) {
-            this.$emit('getData', currentInfo);
-          }
-        });
+        if (this.geoJsonFeatures.length === 0 && this.parentInfo.length > 1) {
+          console.warn('无下级数据，自动回退');
+          this.goBack();
+        }
 
+        if (this.returnLevel.find(level => level === currentInfo?.level)) {
+          this.$emit('getData', currentInfo);
+        }
       } catch (err) {
         console.error('地图数据加载失败:', err);
         this.geoJsonFeatures = [];
@@ -556,10 +506,6 @@ export default {
         this.chart?.hideLoading();
       }
     },
-
-    /**
-     * 下钻操作
-     */
     handleDrillDown(data) {
       if (!data?.name) {
         console.warn('无效数据，无法下钻');
@@ -581,10 +527,6 @@ export default {
       this.loadMapData();
       this.showBack = this.parentInfo.length > 1;
     },
-
-    /**
-     * 返回上一级
-     */
     goBack() {
       if (this.parentInfo.length <= 1) {
         console.log('已达最高层级');
@@ -599,16 +541,13 @@ export default {
       this.loadMapData();
       this.showBack = this.parentInfo.length > 1;
     },
-
-    /**
-     * 窗口缩放处理
-     */
     handleResize() {
       if (this.resizeTimer) {
         clearTimeout(this.resizeTimer);
       }
 
       if (!this.chart || this.isRendering) {
+        console.log('图表不可用或正在渲染，跳过 resize');
         return;
       }
 
@@ -616,6 +555,7 @@ export default {
         try {
           if (this.chart && !this.chart.isDisposed()) {
             if (!this.isChartReady) {
+              console.log('图表未就绪，执行重新渲染');
               this.renderMap();
             } else {
               this.chart.resize({
@@ -635,10 +575,6 @@ export default {
         }
       }, 300);
     },
-
-    /**
-     * 初始化图表
-     */
     async initChart() {
       if (!this.$refs.chartRef) return;
 
@@ -652,7 +588,6 @@ export default {
         this.initializeParentInfo();
         await this.loadMapData();
 
-        // 绑定点击事件
         this.chart.off('click');
         this.chart.on('click', (params) => {
           if ((params.seriesType === 'map' || params.seriesType === 'bar') && params.data) {
@@ -663,13 +598,9 @@ export default {
         console.error('图表初始化失败:', error);
       }
     },
-
-    /**
-     * 绑定窗口缩放事件
-     */
     bindResizeEvent() {
       window.removeEventListener('resize', this.handleResize);
-      window.addEventListener('resize', this.handleResize, { passive: true });
+      window.addEventListener('resize', this.handleResize, {passive: true});
     }
   }
 };

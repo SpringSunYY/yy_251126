@@ -87,29 +87,31 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <el-row :gutter="10">
+    <el-row :gutter="10" class="maps">
       <el-col :span="7">
-        <div class="chart-wrapper" style="height: 50vh">
+        <div class="chart-wrapper">
           <KeywordGravityCharts :chart-data="killAnalysisData"
                                 :chart-name="killAnalysisName"/>
         </div>
-        <div class="chart-wrapper" style="height: 30vh">
+        <div class="chart-wrapper">
           <ScatterAvgCharts :chart-data="killAnalysisSalaryData"
                             :chart-name="killAnalysisSalaryName"
           />
         </div>
       </el-col>
-      <el-col :span="8">
-        <MapCharts style="height: 60vh"/>
+      <el-col :span="10">
+        <div class="map-chart">
+          <MapCharts/>
+        </div>
       </el-col>
       <el-col :span="7">
-        <div class="chart-wrapper" style="height: 30vh">
+        <div class="chart-wrapper">
           <KeywordTooltipCharts
             :chart-data="recruitBusinessSkillAnalysisData"
             :chart-name="recruitBusinessSkillAnalysisName"
           />
         </div>
-        <div class="chart-wrapper" style="height: 30vh">
+        <div class="chart-wrapper">
           <ScatterRandomCharts
             :chart-data="recruitBusinessSkillSalaryData"
             :chart-name="recruitBusinessSkillSalaryName"
@@ -264,20 +266,33 @@ export default {
 
 <style lang="scss" scoped>
 .app-container {
-  margin-top: -10px; // 抵消默认间距
-  height: 92vh;
-  width: 100%;
-  position: relative;
   background-image: url("../assets/images/index-bg.png");
-  background-repeat: repeat;
+  background-repeat: no-repeat;
   background-size: cover;
-  overflow: hidden;
+  background-position: center;
+  max-height: 95.2vh;
+  margin-top: -10px; // 抵消默认间距
+  padding-top: 10px; // 添加适当内边距
 }
 
 .search-form {
-  background: 'transparent';
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.2);
   padding: 10px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.maps {
+  margin-top: 1vh;
+  width: 100%;
+}
+
+.chart-wrapper {
+  height: 38.5vh;
+}
+
+.map-chart {
+  height: 70vh;
 }
 </style>

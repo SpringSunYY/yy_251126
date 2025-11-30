@@ -55,7 +55,7 @@ export default {
     },
     maxSymbolSize: {
       type: Number,
-      default: 200
+      default: 150
     },
     defaultColor: {
       type: Array,

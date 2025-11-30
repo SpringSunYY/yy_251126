@@ -538,7 +538,7 @@ export default {
     },
 
     /**
-     * **新增方法：处理鼠标悬停事件**
+     * 新增方法：处理鼠标悬停事件
      */
     handleMouseOver(params) {
       if (params.dataType !== 'node') return;
@@ -672,6 +672,8 @@ export default {
         },
         toolbox: {
           show: true,
+          top: '7%',
+          left: '1.9%',
           feature: {
             restore: {}
           }
@@ -696,9 +698,8 @@ export default {
           icon: "circle",
           type: "scroll",
           orient: "vertical",
-          left: "right",
-          right: 20,
-          top: 20,
+          left: "2%",
+          top: "10%",
           bottom: 80,
           pageIconColor: "#00f6ff",
           pageIconInactiveColor: "#fff",
