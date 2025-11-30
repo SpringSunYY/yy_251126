@@ -100,7 +100,7 @@
         </div>
       </el-col>
       <el-col :span="8">
-
+        <MapCharts style="height: 60vh"/>
       </el-col>
       <el-col :span="7">
         <div class="chart-wrapper" style="height: 30vh">
@@ -139,11 +139,13 @@ import RelationCharts from "@/components/Echarts/RelationCharts.vue";
 import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
 import KeywordTooltipCharts from "@/components/Echarts/KeywordTooltipCharts.vue";
 import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
+import MapCharts from "@/components/Echarts/MapCharts.vue";
 
 
 export default {
   name: 'Index',
   components: {
+    MapCharts,
     ScatterRandomCharts,
     KeywordTooltipCharts,
     ScatterAvgCharts,

@@ -3,17 +3,18 @@
 
 import os
 import time
+
 from flask import request, send_from_directory
 from pydantic import Field
 from typing_extensions import Annotated
 from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import NotFound
 
+from ruoyi_common.base.model import AjaxResponse, MultiFile
 from ruoyi_common.config import RuoYiConfig
 from ruoyi_common.constant import Constants
 from ruoyi_common.descriptor.serializer import JsonSerializer
 from ruoyi_common.descriptor.validator import FileValidator, QueryValidator
-from ruoyi_common.base.model import AjaxResponse, MultiFile
 from ruoyi_common.utils import FileUploadUtil, FileUtil, StringUtil
 from ... import reg
 
@@ -127,3 +128,15 @@ def common_profile_resource(resource: str):
         )
     except NotFound:
         return AjaxResponse.from_error("文件不存在")
+
+
+@reg.api.route('/common/geo')
+@QueryValidator()
+@JsonSerializer()
+def common_geo(
+        area:str,
+        name:str,
+):
+    ajax_response = AjaxResponse.from_success()
+    ajax_response.geoJson = FileUtil.get_geo(area, name)
+    return ajax_response

@@ -4,7 +4,7 @@
 from io import BufferedReader, BytesIO
 import io
 import json
-import os,socket,threading,re,base64,ipaddress,math,psutil
+import os, socket, threading, re, base64, ipaddress, math, psutil
 from zipfile import is_zipfile
 import time
 from typing import Any, Callable, Dict, List, Literal, Optional, Type, \
@@ -134,7 +134,7 @@ class StringUtil:
         return value
 
     @classmethod
-    def ishttp(cls, val:str) -> bool:
+    def ishttp(cls, val: str) -> bool:
         """
         判断是否为http或https开头的url
 
@@ -147,7 +147,7 @@ class StringUtil:
         return val.startswith('http://') or val.startswith('https://')
 
     @classmethod
-    def pad_left(cls, value, length:int) -> str:
+    def pad_left(cls, value, length: int) -> str:
         """
         左填充字符串，使其长度达到指定长度
 
@@ -161,7 +161,7 @@ class StringUtil:
         return str(value).zfill(length)
 
     @classmethod
-    def left_pad(cls, value, length:int) -> str:
+    def left_pad(cls, value, length: int) -> str:
         """
         兼容方法：left_pad 等同于 pad_left
 
@@ -175,7 +175,7 @@ class StringUtil:
         return cls.pad_left(value, length)
 
     @classmethod
-    def substring_after(cls, string:str, separator:str) -> str:
+    def substring_after(cls, string: str, separator: str) -> str:
         """
         获取字符串string中第一个分隔符separator之后的字符串
 
@@ -194,7 +194,7 @@ class StringUtil:
 class DictUtil:
 
     @classmethod
-    def upper_key(cls,dict_obj:dict) -> dict:
+    def upper_key(cls, dict_obj: dict) -> dict:
         '''
         将配置对象中的所有键转换为大写
 
@@ -217,7 +217,7 @@ class DictUtil:
         return new_configobj
 
     @classmethod
-    def lower_key(cls,dict_obj:dict) -> dict:
+    def lower_key(cls, dict_obj: dict) -> dict:
         '''
         将配置对象中的所有键转换为小写
 
@@ -238,7 +238,7 @@ class DictUtil:
         return new_configobj
 
     @classmethod
-    def flatten(cls,dict_obj) -> dict:
+    def flatten(cls, dict_obj) -> dict:
         '''
         将字典展平为一级字典
 
@@ -250,8 +250,8 @@ class DictUtil:
         '''
         new_dict = {}
         inner_dict = {}
-        for k,v in dict_obj.items():
-            if isinstance(v,dict):
+        for k, v in dict_obj.items():
+            if isinstance(v, dict):
                 inner_dict.update(cls.flatten(v))
             else:
                 new_dict[k] = v
@@ -298,7 +298,7 @@ class DictUtil:
         return new_dict
 
     @classmethod
-    def format_value(cls,dict_obj) -> dict:
+    def format_value(cls, dict_obj) -> dict:
         '''
         格式化字典的值
 
@@ -310,8 +310,8 @@ class DictUtil:
         '''
         pattern = re.compile("\{(.*?)\}")
         new_dict = {}
-        for k,v in dict_obj.items():
-            if isinstance(v,str) and re.match(pattern,v):
+        for k, v in dict_obj.items():
+            if isinstance(v, str) and re.match(pattern, v):
                 v_v = v.format(**dict_obj)
                 new_dict[k] = v_v
             else:
@@ -319,7 +319,7 @@ class DictUtil:
         return new_dict
 
     @classmethod
-    def recurive_key(cls,dict_obj,pre_key="") -> dict:
+    def recurive_key(cls, dict_obj, pre_key="") -> dict:
         '''
         递归处理字典中的键
 
@@ -332,24 +332,23 @@ class DictUtil:
         '''
         new_dict = {}
         new_key = ""
-        for k1,v1 in dict_obj.items():
-            if pre_key=="":
+        for k1, v1 in dict_obj.items():
+            if pre_key == "":
                 new_key = k1
             else:
-                new_key = "{}.{}".format(pre_key,k1)
-            if isinstance(v1,dict):
-                next_dict = cls.recurive_key(v1,new_key)
+                new_key = "{}.{}".format(pre_key, k1)
+            if isinstance(v1, dict):
+                next_dict = cls.recurive_key(v1, new_key)
                 new_dict[new_key] = next_dict
             else:
                 new_dict[new_key] = v1
         return new_dict
 
 
-
 class Base64Util:
 
     @classmethod
-    def decode(cls,data:str, is_padding=True) -> str:
+    def decode(cls, data: str, is_padding=True) -> str:
         '''
         base64解码
 
@@ -363,14 +362,13 @@ class Base64Util:
         suplus = len(data) % 4
         if is_padding:
             missing_padding = 4 - suplus
-            data += '='* missing_padding
+            data += '=' * missing_padding
         else:
             data = data[:-suplus] if suplus else data
         return str(base64.b64decode(data))
 
 
 class TokenUtil:
-
     default_algorithm = "HS512"
 
     default_headers = {
@@ -440,7 +438,7 @@ class TokenUtil:
         if authorization is None:
             raise Exception('Authorization header not found')
         authorization_split = authorization.split()
-        if len(authorization_split)!= 2 or authorization_split[0].lower()!= 'bearer':
+        if len(authorization_split) != 2 or authorization_split[0].lower() != 'bearer':
             raise Exception('Invalid authorization header')
         return authorization_split[1]
 
@@ -506,6 +504,7 @@ class IpUtil:
             return True
         except ValueError:
             return False
+
 
 class AddressUtil:
 
@@ -647,7 +646,6 @@ class UserAgentUtil:
 
 
 class MimeTypeUtil:
-
     IMAGE_PNG = "image/png"
 
     IMAGE_JPG = "image/jpg"
@@ -658,14 +656,14 @@ class MimeTypeUtil:
 
     IMAGE_GIF = "image/gif"
 
-    VIDEO_EXTENSION = [ "mp4", "avi", "rmvb" ]
+    VIDEO_EXTENSION = ["mp4", "avi", "rmvb"]
 
-    MEDIA_EXTENSION = [ "swf", "flv", "mp3", "wav", "wma", "wmv", "mid", "avi", "mpg",
-                        "asf", "rm", "rmvb" ]
+    MEDIA_EXTENSION = ["swf", "flv", "mp3", "wav", "wma", "wmv", "mid", "avi", "mpg",
+                       "asf", "rm", "rmvb"]
 
-    FLASH_EXTENSION = [ "swf", "flv" ]
+    FLASH_EXTENSION = ["swf", "flv"]
 
-    IMAGE_EXTENSION = [ "bmp", "gif", "jpg", "jpeg", "png" ]
+    IMAGE_EXTENSION = ["bmp", "gif", "jpg", "jpeg", "png"]
 
     DEFAULT_ALLOWED_EXTENSION = [
         # 图片
@@ -677,7 +675,7 @@ class MimeTypeUtil:
         # 视频格式
         "mp4", "avi", "rmvb",
         # pdf
-        "pdf" ]
+        "pdf"]
 
     @classmethod
     def get_extension(cls, mime_type: str) -> str:
@@ -706,7 +704,6 @@ class MimeTypeUtil:
 
 
 class DateUtil:
-
     YYYY = "%Y"
 
     YYYY_MM = "%Y-%m"
@@ -728,7 +725,7 @@ class DateUtil:
         return datetime.now().strftime(cls.YYYY_MM_DD)
 
     @classmethod
-    def get_datetime_now(cls,fmt=None) -> str:
+    def get_datetime_now(cls, fmt=None) -> str:
         """
         获取当前日期 %Y%m%d%H%M%S
 
@@ -770,13 +767,12 @@ class DateUtil:
 
 
 class FileUploadUtil:
-
     DEFAULT_MAX_SIZE = 50 * 1024 * 1024
 
     DEFAULT_FILE_NAME_LENGTH = 100
 
     @classmethod
-    def upload(cls, file:FileStorage, base_path:str) -> str:
+    def upload(cls, file: FileStorage, base_path: str) -> str:
         '''
         上传文件
 
@@ -808,10 +804,10 @@ class FileUploadUtil:
         return resource_path
 
     @classmethod
-    def check_allowed(cls, file:FileStorage, allowed_extensions:List[str]):
+    def check_allowed(cls, file: FileStorage, allowed_extensions: List[str]):
         '''
         文件大小、类型校验（对标若依的 FileUploadUtils.assertAllowed）
-       
+
         Args:
             file(FileStorage): 文件对象
             allowed_extensions(List[str]): 允许的扩展名列表
@@ -848,14 +844,14 @@ class FileUploadUtil:
                 raise Exception("文件格式不支持")
 
     @classmethod
-    def extract_file_name(cls, file:FileStorage) -> str:
+    def extract_file_name(cls, file: FileStorage) -> str:
         '''
         提取文件名，仿照若依：
         日期路径/原文件名_序列号.扩展名
-        
+
         Args:
             file(FileStorage): 文件对象
-        
+
         Returns:
             str: 文件名
         '''
@@ -867,7 +863,7 @@ class FileUploadUtil:
         )
 
     @classmethod
-    def get_extension(cls, file:FileStorage) -> str:
+    def get_extension(cls, file: FileStorage) -> str:
         '''
         获取文件扩展名
 
@@ -883,7 +879,7 @@ class FileUploadUtil:
         return extension
 
     @classmethod
-    def get_filename(cls, filename:str) -> str:
+    def get_filename(cls, filename: str) -> str:
         '''
         获取文件名
 
@@ -946,7 +942,6 @@ class AtomicInteger:
 
 
 class Seq:
-
     common_seq_type = "common"
 
     upload_seq_type = "upload"
@@ -958,7 +953,7 @@ class Seq:
     matchine_code = "A"
 
     @classmethod
-    def get_seq_id(cls, seq_name:str = "common") -> int:
+    def get_seq_id(cls, seq_name: str = "common") -> int:
         '''
         获取序列号
 
@@ -973,7 +968,7 @@ class Seq:
         return out
 
     @classmethod
-    def get_seq(cls, ato:AtomicInteger, length:int) -> str:
+    def get_seq(cls, ato: AtomicInteger, length: int) -> str:
         '''
         获取指定长度的序列号
 
@@ -993,7 +988,7 @@ class Seq:
 class MessageUtil:
 
     @staticmethod
-    def message(code:str) -> str:
+    def message(code: str) -> str:
         """
         根据code获取消息
 
@@ -1009,7 +1004,7 @@ class MessageUtil:
 
 class FileUtil:
 
-    def delete_file(file_path:str) -> bool:
+    def delete_file(file_path: str) -> bool:
         '''
         删除文件
 
@@ -1025,11 +1020,37 @@ class FileUtil:
             flag = True
         return flag
 
+    def get_geo(area: str, name: str):
+        # 为避免循环依赖，延迟导入 RuoYiConfig
+        from ruoyi_common.config import RuoYiConfig
+        geo_path = RuoYiConfig.get_geo_json_path()
+        # 获取系统文件分割符
+        separator = os.path.sep
+        geo_file = geo_path + separator + area + separator + name + ".json"
+        return FileUtil.read_file_content(geo_file)
+
+    def read_file_content(geo_file: str) -> str:
+        """
+        根据文件路径读取文件内容
+
+        Args:
+            geo_file (str): 文件路径
+
+        Returns:
+            str: 文件内容
+        """
+        if not isinstance(geo_file, str):
+            raise TypeError("文件路径必须是字符串类型")
+        if not os.path.exists(geo_file):
+            return  ""
+        with open(geo_file, "r", encoding="utf-8") as f:
+            return f.read()
+
 
 class DescriptUtil:
 
     @classmethod
-    def get_raw(cls, func:Callable) -> Callable:
+    def get_raw(cls, func: Callable) -> Callable:
         """
         获取原始函数
 
@@ -1047,29 +1068,28 @@ class DescriptUtil:
 
 
 class ExcelUtil:
-
     default_header_fill = {
         "start_color": "FFFFFFFF",
         "end_color": "FFFFFFFF",
-        "fill_type": None, # "solid" or None
+        "fill_type": None,  # "solid" or None
     }
 
     default_row_fill = {
         "start_color": "FFFFFFFF",
         "end_color": "FFFFFFFF",
-        "fill_type": None, # "solid" or None
+        "fill_type": None,  # "solid" or None
     }
 
-    allowed_extensions = ["xlsx","xls"]
+    allowed_extensions = ["xlsx", "xls"]
     allowed_content_types = [
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ]
-    max_content_length = 6 * 1024 * 1024 # 6M
+    max_content_length = 6 * 1024 * 1024  # 6M
 
-    def __init__(self, model:Type[BaseModel]):
+    def __init__(self, model: Type[BaseModel]):
         self.model = model
 
-    def write(self, data:List[BaseModel], sheetname:str) -> BytesIO:
+    def write(self, data: List[BaseModel], sheetname: str) -> BytesIO:
         """
         写入Excel文件
 
@@ -1085,7 +1105,7 @@ class ExcelUtil:
         workbook = Workbook()
         worksheet = workbook.create_sheet(title=sheetname)
         workbook.active = worksheet
-        self.render_data(worksheet,data)
+        self.render_data(worksheet, data)
 
         output = BytesIO()
         workbook.save(output)
@@ -1093,7 +1113,7 @@ class ExcelUtil:
 
         return output
 
-    def render_header(self, sheet:Worksheet,fill:PatternFill=None):
+    def render_header(self, sheet: Worksheet, fill: PatternFill = None):
         """
         渲染Excel表头
 
@@ -1101,16 +1121,16 @@ class ExcelUtil:
             sheet (Worksheet): 工作表
             fill(PatternFill): 表头填充
         """
-        for col_index,access in enumerate(
+        for col_index, access in enumerate(
                 self.model.generate_excel_schema(),
                 start=1
         ):
             _, access = access
-            cell = sheet.cell(row=1,column=col_index,value=access.name)
+            cell = sheet.cell(row=1, column=col_index, value=access.name)
             cell.fill = fill
             cell.font = access.header_font
 
-    def render_row(self, sheet:Worksheet,row:BaseModel,row_index:int):
+    def render_row(self, sheet: Worksheet, row: BaseModel, row_index: int):
         """
         渲染Excel行数据
 
@@ -1122,14 +1142,14 @@ class ExcelUtil:
         default_row_fill = PatternFill(
             **self.default_row_fill
         )
-        for col_index,access in enumerate(row.generate_excel_data(),start=1):
-            _,access = access
-            cell = sheet.cell(row=row_index,column=col_index,value=access.val)
+        for col_index, access in enumerate(row.generate_excel_data(), start=1):
+            _, access = access
+            cell = sheet.cell(row=row_index, column=col_index, value=access.val)
             cell.alignment = access.alignment
             cell.fill = access.fill if access.fill else default_row_fill
             cell.font = access.row_font
 
-    def render_footer(self, sheet:Worksheet):
+    def render_footer(self, sheet: Worksheet):
         """
         渲染Excel表尾
 
@@ -1138,7 +1158,7 @@ class ExcelUtil:
         """
         pass
 
-    def render_data(self, sheet:Worksheet, data:List[BaseModel],header_fill:PatternFill=None):
+    def render_data(self, sheet: Worksheet, data: List[BaseModel], header_fill: PatternFill = None):
         """
         渲染Excel数据
 
@@ -1151,12 +1171,12 @@ class ExcelUtil:
                 **self.default_header_fill
             )
 
-        self.render_header(sheet,header_fill)
-        for row_index,row in enumerate(data,start=2):
-            self.render_row(sheet,row,row_index)
+        self.render_header(sheet, header_fill)
+        for row_index, row in enumerate(data, start=2):
+            self.render_row(sheet, row, row_index)
         self.render_footer(sheet)
 
-    def export_response(self, data:List[BaseModel], sheetname:str) -> Response:
+    def export_response(self, data: List[BaseModel], sheetname: str) -> Response:
         """
         响应Excel文件
 
@@ -1167,7 +1187,7 @@ class ExcelUtil:
         Returns:
             Response: 文件流响应
         """
-        output:BytesIO = self.write(data,sheetname)
+        output: BytesIO = self.write(data, sheetname)
         response = Response(
             response=output.getvalue(),
             status=200,
@@ -1176,7 +1196,7 @@ class ExcelUtil:
         )
         return response
 
-    def import_template_response(self, sheetname:str) -> Response:
+    def import_template_response(self, sheetname: str) -> Response:
         """
         响应导入模板
 
@@ -1186,7 +1206,7 @@ class ExcelUtil:
         Returns:
             Response: 文件流响应
         """
-        output:BytesIO = self.write_template(sheetname)
+        output: BytesIO = self.write_template(sheetname)
         response = Response(
             response=output.getvalue(),
             status=200,
@@ -1195,7 +1215,7 @@ class ExcelUtil:
         )
         return response
 
-    def write_template(self,sheetname:str) -> BytesIO:
+    def write_template(self, sheetname: str) -> BytesIO:
         """
         写入导入模板
 
@@ -1217,7 +1237,7 @@ class ExcelUtil:
 
         return output
 
-    def render_template(self, sheet:Worksheet):
+    def render_template(self, sheet: Worksheet):
         """
         渲染导入模板
 
@@ -1227,9 +1247,9 @@ class ExcelUtil:
         header_fill = PatternFill(
             **self.default_header_fill
         )
-        self.render_header(sheet,header_fill)
+        self.render_header(sheet, header_fill)
 
-    def import_file(self, file:FileStorage, sheetname:Optional[str]=None) -> List[BaseModel]:
+    def import_file(self, file: FileStorage, sheetname: Optional[str] = None) -> List[BaseModel]:
         """
         导入数据
 
@@ -1247,7 +1267,7 @@ class ExcelUtil:
         data = self.read_buffer(buffer, sheetname)
         return data
 
-    def check_file(self, file:FileStorage):
+    def check_file(self, file: FileStorage):
         '''
         检查文件是否合法
         '''
@@ -1260,13 +1280,13 @@ class ExcelUtil:
         if file.content_type not in self.allowed_content_types:
             raise Exception("文件类型不正确")
         # 文件大小
-        file.seek(0,os.SEEK_END)
+        file.seek(0, os.SEEK_END)
         if file.tell() > self.max_content_length:
             raise Exception("文件大小超过限制")
 
     IMPORT_SAMPLE_ROW_LIMIT = 5
 
-    def read_buffer(self, buffer, sheetname:Optional[str]=None) -> List[BaseModel]:
+    def read_buffer(self, buffer, sheetname: Optional[str] = None) -> List[BaseModel]:
         """
         读取文件流
 
@@ -1279,7 +1299,7 @@ class ExcelUtil:
         """
         logger = self._get_logger()
         try:
-            workbook = load_workbook(buffer,read_only=True,data_only=True)
+            workbook = load_workbook(buffer, read_only=True, data_only=True)
         except Exception as e:
             raise Exception("文件格式不正确")
         worksheets = self._get_candidate_worksheets(workbook, sheetname, logger)
@@ -1321,7 +1341,8 @@ class ExcelUtil:
             )
         raise Exception("工作表为空，缺少表头行")
 
-    def _get_candidate_worksheets(self, workbook, sheetname:Optional[str], logger:Optional[Logger]) -> List[Worksheet]:
+    def _get_candidate_worksheets(self, workbook, sheetname: Optional[str], logger: Optional[Logger]) -> List[
+        Worksheet]:
         worksheets = list(workbook.worksheets)
         if not worksheets:
             return []
@@ -1350,7 +1371,7 @@ class ExcelUtil:
             )
         return ordered
 
-    def _extract_rows_from_worksheet(self, worksheet:Worksheet, column_meta:Dict[str,Dict[str,Any]]):
+    def _extract_rows_from_worksheet(self, worksheet: Worksheet, column_meta: Dict[str, Dict[str, Any]]):
         header_values = None
         data = []
         sample_rows = []
@@ -1377,7 +1398,7 @@ class ExcelUtil:
             return None, sample_rows
         return data, sample_rows
 
-    def _build_excel_column_meta(self) -> Dict[str,Dict[str,Any]]:
+    def _build_excel_column_meta(self) -> Dict[str, Dict[str, Any]]:
         if hasattr(self, "_excel_column_meta_cache"):
             return self._excel_column_meta_cache
         column_meta = {}
@@ -1390,7 +1411,7 @@ class ExcelUtil:
         self._excel_column_meta_cache = column_meta
         return column_meta
 
-    def _coerce_cell_value(self, header:str, value:Any, column_meta:Dict[str,Dict[str,Any]]):
+    def _coerce_cell_value(self, header: str, value: Any, column_meta: Dict[str, Dict[str, Any]]):
         meta = column_meta.get(header)
         if not meta:
             return value
@@ -1402,7 +1423,7 @@ class ExcelUtil:
             return str(value)
         return value
 
-    def _resolve_field_type(self, path:List[str]):
+    def _resolve_field_type(self, path: List[str]):
         current_model = self.model
         last_index = len(path) - 1
         for idx, attr in enumerate(path):
@@ -1419,11 +1440,11 @@ class ExcelUtil:
             current_model = next_model
 
     @staticmethod
-    def _normalize_sheet_name(name:str) -> str:
+    def _normalize_sheet_name(name: str) -> str:
         return (name or "").strip().lower()
 
     @classmethod
-    def _stringify_row(cls, row:List) -> List[str]:
+    def _stringify_row(cls, row: List) -> List[str]:
         normalized = []
         for value in row:
             if value is None:
