@@ -243,13 +243,24 @@ class BaseSchemaFactory(AbcSchemaFactory):
         vo_name = model_cls.__name__ + self.action.capitalize() + \
             self.model_suffix
 
-        return create_model(
+        # 如果是 QuerySchemaFactory，使用 query_valid_config 允许额外字段
+        if hasattr(self, 'action') and self.action == 'query' and hasattr(self, 'model_config'):
+            # 创建一个新的基类，使用 query_valid_config
+            class QueryBaseModel(model_cls):
+                model_config = self.model_config.copy()
+            base_class = QueryBaseModel
+        else:
+            base_class = model_cls
+
+        new_model = create_model(
             vo_name, 
-            __base__= model_cls,
+            __base__= base_class,
             __doc__ = model_cls.__doc__, 
             __module__= model_cls.__module__, 
             **field_definitions
         )
+        
+        return new_model
     
     def rebuild_field(self, name:str, info:FieldInfo) -> bool:
         """
@@ -328,7 +339,8 @@ class QuerySchemaFactory(BaseSchemaFactory):
         bo_model = get_final_model(annotation)
         if issubclass(bo_model, BaseEntity):
             updated_model = self.rebuild_model(model_cls=bo_model)
-            self.model_config = annotation.model_config.copy()
+            # 使用 query_valid_config 而不是原模型的配置，允许额外字段
+            self.model_config = self.model_config.copy()
             self._validate_context()
             self.rebuild_extra_model()
             return updated_model

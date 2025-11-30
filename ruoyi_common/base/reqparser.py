@@ -104,7 +104,25 @@ class QueryReqParser(BaseReqParser):
     
     def cast_model(self, bo_model:BaseEntity) -> BaseModel:
         data = self.data()
-        bo = bo_model.model_validate(data)
+        # 对于查询参数，只保留模型中定义的字段和别名，忽略额外字段
+        # 收集模型中所有字段名和别名
+        model_fields = set()
+        for name, info in bo_model.model_fields.items():
+            model_fields.add(name)
+            # 添加查询别名（camelCase）
+            if hasattr(bo_model, 'model_config') and bo_model.model_config:
+                alias_gen = bo_model.model_config.get('alias_generator')
+                if callable(alias_gen):
+                    model_fields.add(alias_gen(name))
+            # 添加 validation_alias
+            if info.validation_alias:
+                if isinstance(info.validation_alias, str):
+                    model_fields.add(info.validation_alias)
+                elif hasattr(info.validation_alias, 'choices'):
+                    model_fields.update(info.validation_alias.choices)
+        # 过滤掉未定义的字段
+        filtered_data = {k: v for k, v in data.items() if k in model_fields}
+        bo = bo_model.model_validate(filtered_data)
         return bo
 
     def _remove_model_aliases(
