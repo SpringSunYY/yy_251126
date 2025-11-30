@@ -286,7 +286,7 @@ export default {
       // --- 3. ECharts Option 配置 ---
       const self = this;
       const option = {
-        title: {text: this.chartName, left: 'center'},
+        title: {text: this.chartName, left: 'center', textStyle: {color: '#fff'}},
         dataZoom: [
           // 确保 dataZoom 存在，否则 event.batch[0] 会报错
           {type: 'inside', xAxisIndex: 0, filterMode: 'none', start: 0, end: 100},
@@ -296,6 +296,7 @@ export default {
           min: minSalary, max: maxSalary, dimension: 4,
           orient: 'vertical', right: 10, top: 'center',
           text: ['最大值', '最小值'], calculable: true,
+          textStyle: {color: '#fff'},
           inRange: {color: ['#A3E4D7', '#117A65']}
         },
         tooltip: {
@@ -317,13 +318,14 @@ export default {
 
         xAxis: {
           type: 'value', name: '职位总数 (Value)', nameLocation: 'middle', nameGap: 30,
-          axisLabel: {formatter: '{value}'}, splitLine: {show: true},
+          axisLabel: {formatter: '{value}', color: '#ffffff'}, splitLine: {show: true},
           min: globalMinX,
           max: globalMaxX
         },
         yAxis: {
-          type: 'value', name: '平均工资 (元)', nameLocation: 'middle', nameGap: 50,
-          axisLabel: {formatter: '{value} 元'}, splitLine: {show: true}
+          type: 'value', name: '平均', nameLocation: 'middle', nameGap: 30,
+          color: 'black',
+          axisLabel: {formatter: '{value} 元', color: '#ffffff'}, splitLine: {show: true}
         },
         grid: {left: '10%', right: '15%', bottom: '10%', containLabel: true},
 
@@ -358,7 +360,7 @@ export default {
               position: 'right',
               fontSize: 10,
               fontWeight: 'bold',
-              color: '#333',
+              color: '#ffffff',
               bleed: false, // 初始不溢出
               minMargin: 3,
               overflow: 'break',

@@ -80,7 +80,12 @@ export default {
     },
     backgroundColor: {
       type: String,
+      // 默认背景颜色
       default: 'transparent'
+    },
+    tooltipBackgroundColor: {
+      type: String,
+      default: 'rgba(0,0,0,0.2)'
     },
   },
 
@@ -173,13 +178,18 @@ export default {
       const chartContainer = this.$refs.chartRef;
 
       const options = {
-        backgroundColor: this.backgroundColor,
-        title: {text: this.chartName},
+        chart: {
+          backgroundColor: this.backgroundColor
+        },
+        title: {
+          text: this.chartName, style:
+            {color: 'white', fontSize: '20px',fontWeight: 'bold'}
+        },
         credits: {enabled: false},
         tooltip: {
           enabled: true,
           borderWidth: 0,
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: this.tooltipBackgroundColor,
           style: {
             color: '#fff',
             fontSize: '16px'

@@ -87,27 +87,38 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <div class="chart-wrapper" style="height: 50vh">
-      <KeywordGravityCharts :chart-data="killAnalysisData"
-                            :chart-name="killAnalysisName"/>
-    </div>
-    <div class="chart-wrapper" style="height: 100vh">
-      <ScatterAvgCharts :chart-data="killAnalysisSalaryData"
-                        :chart-name="killAnalysisSalaryName"
-      />
-    </div>
-    <div class="chart-wrapper" style="height: 100vh">
-      <KeywordTooltipCharts
-        :chart-data="recruitBusinessSkillAnalysisData"
-        :chart-name="recruitBusinessSkillAnalysisName"
-      />
-    </div>
-    <div class="chart-wrapper" style="height: 100vh">
-      <ScatterRandomCharts
-        :chart-data="recruitBusinessSkillSalaryData"
-        :chart-name="recruitBusinessSkillSalaryName"
-      />
-    </div>
+    <el-row :gutter="10">
+      <el-col :span="7">
+        <div class="chart-wrapper" style="height: 50vh">
+          <KeywordGravityCharts :chart-data="killAnalysisData"
+                                :chart-name="killAnalysisName"/>
+        </div>
+        <div class="chart-wrapper" style="height: 30vh">
+          <ScatterAvgCharts :chart-data="killAnalysisSalaryData"
+                            :chart-name="killAnalysisSalaryName"
+          />
+        </div>
+      </el-col>
+      <el-col :span="8">
+
+      </el-col>
+      <el-col :span="7">
+        <div class="chart-wrapper" style="height: 30vh">
+          <KeywordTooltipCharts
+            :chart-data="recruitBusinessSkillAnalysisData"
+            :chart-name="recruitBusinessSkillAnalysisName"
+          />
+        </div>
+        <div class="chart-wrapper" style="height: 30vh">
+          <ScatterRandomCharts
+            :chart-data="recruitBusinessSkillSalaryData"
+            :chart-name="recruitBusinessSkillSalaryName"
+          />
+        </div>
+      </el-col>
+    </el-row>
+
+
   </div>
 </template>
 
@@ -120,7 +131,6 @@ import BarChart from './dashboard/BarChart'
 import {
   recruitBusinessSalaryAnalysis,
   recruitBusinessSkillAnalysis,
-  recruitDistributionAnalysis,
   recruitSkillAnalysis,
   recruitSkillSalaryAnalysis
 } from "@/api/recruit/statistics";
@@ -158,8 +168,6 @@ export default {
       recruitBusinessSkillSalaryData: [],
       // 查询参数
       queryParams: {
-        pageNum: 1,
-        pageSize: 20,
         post: null,
         location: null,
         experienceRequired: null,
@@ -253,21 +261,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dashboard-editor-container {
-  padding: 32px;
-  background-color: rgb(0, 82, 255);
+.app-container {
+  margin-top: -10px; // 抵消默认间距
+  height: 92vh;
+  width: 100%;
   position: relative;
-
-  .chart-wrapper {
-    background: #fff;
-    padding: 16px 16px 0;
-    margin-bottom: 32px;
-  }
+  background-image: url("../assets/images/index-bg.png");
+  background-repeat: repeat;
+  background-size: cover;
+  overflow: hidden;
 }
 
-@media (max-width: 1024px) {
-  .chart-wrapper {
-    padding: 8px;
-  }
+.search-form {
+  background: 'transparent';
+  padding: 10px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 </style>
