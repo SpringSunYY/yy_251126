@@ -179,30 +179,21 @@ class SysMenuService:
     @classmethod
     def path_to_component_name(cls, path: str) -> str:
         '''
-        将路径转换为组件名称（驼峰命名）
-        例如: recruitInfo -> RecruitInfo, recruit/info/index -> RecruitInfo
+        将path字段转换为组件名称（只将首字母大写）
+        path字段存储的是路由名称，不是组件路径
+        例如: recruitInfo -> RecruitInfo
         
         Args:
-            path(str): 路径
+            path(str): 路由名称（path字段）
             
         Returns:
             str: 组件名称
         '''
         if not path:
             return ""
-        # 移除末尾的 /index
-        if path.endswith('/index'):
-            path = path[:-6]
-        # 如果包含斜杠，分割后转换为驼峰命名
-        if '/' in path:
-            parts = path.split('/')
-            # 将每个部分首字母大写并拼接
-            name_parts = [part.capitalize() for part in parts if part]
-            return ''.join(name_parts)
-        else:
-            # 如果是驼峰命名，只将首字母大写
-            # 例如: recruitInfo -> RecruitInfo
-            return path[0].upper() + path[1:] if path else ""
+        # 只将首字母大写，保留其他字符不变（包括驼峰命名中的大写字母）
+        # 例如: recruitInfo -> RecruitInfo
+        return path[0].upper() + path[1:] if path else ""
     
     @classmethod
     def get_route_name(cls, menu: SysMenu) -> str:
