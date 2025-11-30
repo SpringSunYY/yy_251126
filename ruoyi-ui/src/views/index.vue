@@ -1,36 +1,95 @@
 <template>
-  <div class="dashboard-editor-container">
-
-    <panel-group @handleSetLineChartData="handleSetLineChartData"/>
-
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData"/>
-    </el-row>
-
-    <el-row :gutter="32">
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <raddar-chart/>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <pie-chart/>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="24" :lg="8">
-        <div class="chart-wrapper">
-          <bar-chart/>
-        </div>
-      </el-col>
-    </el-row>
+  <div class="app-container">
+    <!-- 搜索栏 -->
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" label-width="80px" class="search-form">
+      <el-form-item label="岗位" prop="post">
+        <el-input
+          v-model="queryParams.post"
+          placeholder="请输入岗位"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="地点" prop="location">
+        <el-input
+          v-model="queryParams.location"
+          placeholder="请输入地点"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="经验要求" prop="experienceRequired">
+        <el-select v-model="queryParams.experienceRequired" placeholder="请选择经验要求" clearable>
+          <el-option
+            v-for="dict in dict.type.recruit_experience_required"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="学历要求" prop="educationRequired">
+        <el-select v-model="queryParams.educationRequired" placeholder="请选择学历要求" clearable>
+          <el-option
+            v-for="dict in dict.type.recruit_education_required"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="技能要求" prop="skillRequired">
+        <el-input
+          v-model="queryParams.skillRequired"
+          placeholder="请输入技能要求"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="企业名称" prop="enterpriseName">
+        <el-input
+          v-model="queryParams.enterpriseName"
+          placeholder="请输入企业名称"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="上市情况" prop="listingStatus">
+        <el-select v-model="queryParams.listingStatus" placeholder="请选择上市情况" clearable>
+          <el-option
+            v-for="dict in dict.type.recruit_listing_status"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="企业规模" prop="enterpriseSize">
+        <el-select v-model="queryParams.enterpriseSize" placeholder="请选择企业规模" clearable>
+          <el-option
+            v-for="dict in dict.type.recruit_enterprise_size"
+            :key="dict.value"
+            :label="dict.label"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="主营业务" prop="mainBusiness">
+        <el-input
+          v-model="queryParams.mainBusiness"
+          placeholder="请输入主营业务"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+      </el-form-item>
+    </el-form>
     <div class="chart-wrapper" style="height: 50vh">
       <KeywordGravityCharts :chart-data="killAnalysisData"
                             :chart-name="killAnalysisName"/>
-    </div>
-    <div class="chart-wrapper" style="height: 100vh">
-      <RelationCharts :chart-data="recruitDistributionData"
-                      :chart-name="recruitDistributionName"/>
     </div>
     <div class="chart-wrapper" style="height: 100vh">
       <ScatterAvgCharts :chart-data="killAnalysisSalaryData"
@@ -49,7 +108,6 @@
         :chart-name="recruitBusinessSkillSalaryName"
       />
     </div>
-
   </div>
 </template>
 
@@ -72,24 +130,6 @@ import ScatterAvgCharts from "@/components/Echarts/ScatterAvgCharts.vue";
 import KeywordTooltipCharts from "@/components/Echarts/KeywordTooltipCharts.vue";
 import ScatterRandomCharts from "@/components/Echarts/ScatterRandomCharts.vue";
 
-const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
-  },
-  messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
-  },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
-  },
-  shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
-  }
-}
 
 export default {
   name: 'Index',
@@ -105,44 +145,59 @@ export default {
     PieChart,
     BarChart
   },
+  dicts: ['recruit_experience_required', 'recruit_education_required', 'recruit_listing_status', 'recruit_enterprise_size'],
   data() {
     return {
-      lineChartData: lineChartData.newVisitis,
       killAnalysisData: [],
       killAnalysisName: "求职技能分析",
       killAnalysisSalaryData: [],
       killAnalysisSalaryName: "技能职位与平均工资散点图",
-      recruitDistributionData: {},
-      recruitDistributionName: "招聘信息分布",
       recruitBusinessSkillAnalysisData: [],
       recruitBusinessSkillAnalysisName: "招聘信息行业所需技能分析",
       recruitBusinessSkillSalaryName: "招聘信息行业薪资分析",
       recruitBusinessSkillSalaryData: [],
+      // 查询参数
+      queryParams: {
+        pageNum: 1,
+        pageSize: 20,
+        post: null,
+        location: null,
+        experienceRequired: null,
+        educationRequired: null,
+        skillRequired: null,
+        enterpriseName: null,
+        listingStatus: null,
+        enterpriseSize: null,
+        mainBusiness: null,
+      },
     }
   },
   created() {
-    this.getKillAnalysisData()
-    this.getRecruitDistributionData()
-    this.getKillAnalysisSalaryData()
-    this.getRecruitBusinessSkillSalaryData()
-    this.getRecruitBusinessSkillAnalysisData()
+    this.getStatisticsData()
   },
   methods: {
-    handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.getStatisticsData()
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery()
+    },
+    getStatisticsData() {
+      this.getKillAnalysisData()
+      this.getKillAnalysisSalaryData()
+      this.getRecruitBusinessSkillSalaryData()
+      this.getRecruitBusinessSkillAnalysisData()
     },
     getKillAnalysisData() {
-      recruitSkillAnalysis().then(res => {
+      recruitSkillAnalysis(this.queryParams).then(res => {
         this.killAnalysisData = res.data
       })
     },
-    getRecruitDistributionData() {
-      recruitDistributionAnalysis().then(res => {
-        this.recruitDistributionData = res.data
-      })
-    },
     getKillAnalysisSalaryData() {
-      recruitSkillSalaryAnalysis().then(res => {
+      recruitSkillSalaryAnalysis(this.queryParams).then(res => {
         if (!res.data || !res.data.length) {
           return
         }
@@ -157,7 +212,7 @@ export default {
       })
     },
     getRecruitBusinessSkillSalaryData() {
-      recruitBusinessSalaryAnalysis().then(res => {
+      recruitBusinessSalaryAnalysis(this.queryParams).then(res => {
         if (!res.data || !res.data.length) {
           return
         }
@@ -172,7 +227,7 @@ export default {
     },
 
     getRecruitBusinessSkillAnalysisData() {
-      recruitBusinessSkillAnalysis().then(res => {
+      recruitBusinessSkillAnalysis(this.queryParams).then(res => {
         this.recruitBusinessSkillAnalysisData = res.data.map(item => {
           if (item.tooltips) {
             let tooltip = `行业所需技能:\n`
