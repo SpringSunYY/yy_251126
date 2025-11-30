@@ -112,7 +112,8 @@
           size="mini"
           @click="handleAdd"
           v-hasPermi="['recruit:recruit:add']"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -123,7 +124,8 @@
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['recruit:recruit:edit']"
-        >修改</el-button>
+        >修改
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -134,7 +136,8 @@
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['recruit:recruit:remove']"
-        >删除</el-button>
+        >删除
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -144,7 +147,8 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['recruit:recruit:export']"
-        >导出</el-button>
+        >导出
+        </el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -154,25 +158,32 @@
           size="mini"
           @click="handleImport"
           v-hasPermi="['recruit:recruit:import']"
-        >导入</el-button>
+        >导入
+        </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
     </el-row>
 
     <el-table :loading="loading" :data="recruitList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="recruitId" />
-      <el-table-column label="岗位" align="center" :show-overflow-tooltip="true" v-if="columns[1].visible" prop="post" />
-      <el-table-column label="标题链接" align="center" :show-overflow-tooltip="true" v-if="columns[2].visible" prop="titleUrl" >
+      <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="编号" align="center" v-if="columns[0].visible" prop="recruitId"/>
+      <el-table-column label="岗位" align="center" :show-overflow-tooltip="true" v-if="columns[1].visible" prop="post"/>
+      <el-table-column label="标题链接" align="center" :show-overflow-tooltip="true" v-if="columns[2].visible"
+                       prop="titleUrl">
         <template slot-scope="scope">
           <a v-if="scope.row.titleUrl" :href="scope.row.titleUrl" target="_blank">查看</a>
         </template>
       </el-table-column>
-      <el-table-column label="薪资范围" align="center" :show-overflow-tooltip="true" v-if="columns[3].visible" prop="salaryRange" />
-      <el-table-column label="月薪最小值" align="center" :show-overflow-tooltip="true" v-if="columns[4].visible" prop="salaryMonthMin" />
-      <el-table-column label="月薪最大值" align="center" :show-overflow-tooltip="true" v-if="columns[5].visible" prop="salaryMonthMax" />
-      <el-table-column label="月薪平均值" align="center" :show-overflow-tooltip="true" v-if="columns[6].visible" prop="salaryMonthAvg" />
-      <el-table-column label="地点" align="center" :show-overflow-tooltip="true" v-if="columns[7].visible" prop="location" />
+      <el-table-column label="薪资范围" align="center" :show-overflow-tooltip="true" v-if="columns[3].visible"
+                       prop="salaryRange"/>
+      <el-table-column label="月薪最小值" align="center" :show-overflow-tooltip="true" v-if="columns[4].visible"
+                       prop="salaryMonthMin"/>
+      <el-table-column label="月薪最大值" align="center" :show-overflow-tooltip="true" v-if="columns[5].visible"
+                       prop="salaryMonthMax"/>
+      <el-table-column label="月薪平均值" align="center" :show-overflow-tooltip="true" v-if="columns[6].visible"
+                       prop="salaryMonthAvg"/>
+      <el-table-column label="地点" align="center" :show-overflow-tooltip="true" v-if="columns[7].visible"
+                       prop="location"/>
       <el-table-column label="经验要求" align="center" v-if="columns[8].visible" prop="experienceRequired">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.recruit_experience_required" :value="scope.row.experienceRequired"/>
@@ -183,8 +194,10 @@
           <dict-tag :options="dict.type.recruit_education_required" :value="scope.row.educationRequired"/>
         </template>
       </el-table-column>
-      <el-table-column label="技能要求" align="center" :show-overflow-tooltip="true" v-if="columns[10].visible" prop="skillRequired" />
-      <el-table-column label="企业名称" align="center" :show-overflow-tooltip="true" v-if="columns[11].visible" prop="enterpriseName" />
+      <el-table-column label="技能要求" align="center" :show-overflow-tooltip="true" v-if="columns[10].visible"
+                       prop="skillRequired"/>
+      <el-table-column label="企业名称" align="center" :show-overflow-tooltip="true" v-if="columns[11].visible"
+                       prop="enterpriseName"/>
       <el-table-column label="上市情况" align="center" v-if="columns[12].visible" prop="listingStatus">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.recruit_listing_status" :value="scope.row.listingStatus"/>
@@ -195,11 +208,16 @@
           <dict-tag :options="dict.type.recruit_enterprise_size" :value="scope.row.enterpriseSize"/>
         </template>
       </el-table-column>
-      <el-table-column label="主营业务" align="center" :show-overflow-tooltip="true" v-if="columns[14].visible" prop="mainBusiness" />
-      <el-table-column label="标题详情" align="center" :show-overflow-tooltip="true" v-if="columns[15].visible" prop="titleDetail" />
-      <el-table-column label="薪资范围2" align="center" :show-overflow-tooltip="true" v-if="columns[16].visible" prop="salaryRange2" />
-      <el-table-column label="岗位描述" align="center" :show-overflow-tooltip="true" v-if="columns[17].visible" prop="jobDescription" />
-      <el-table-column label="工作地点" align="center" :show-overflow-tooltip="true" v-if="columns[18].visible" prop="wordLocation" />
+      <el-table-column label="主营业务" align="center" :show-overflow-tooltip="true" v-if="columns[14].visible"
+                       prop="mainBusiness"/>
+      <el-table-column label="标题详情" align="center" :show-overflow-tooltip="true" v-if="columns[15].visible"
+                       prop="titleDetail"/>
+      <el-table-column label="薪资范围2" align="center" :show-overflow-tooltip="true" v-if="columns[16].visible"
+                       prop="salaryRange2"/>
+      <el-table-column label="岗位描述" align="center" :show-overflow-tooltip="true" v-if="columns[17].visible"
+                       prop="jobDescription"/>
+      <el-table-column label="工作地点" align="center" :show-overflow-tooltip="true" v-if="columns[18].visible"
+                       prop="wordLocation"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -208,14 +226,16 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['recruit:recruit:edit']"
-          >修改</el-button>
+          >修改
+          </el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['recruit:recruit:remove']"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -232,25 +252,25 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="岗位" prop="post">
-          <el-input v-model="form.post" placeholder="请输入岗位" />
+          <el-input v-model="form.post" placeholder="请输入岗位"/>
         </el-form-item>
-<!--        <el-form-item label="标题链接" prop="titleUrl">-->
-<!--          <el-input v-model="form.titleUrl" placeholder="请输入标题链接" />-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="标题链接" prop="titleUrl">-->
+        <!--          <el-input v-model="form.titleUrl" placeholder="请输入标题链接" />-->
+        <!--        </el-form-item>-->
         <el-form-item label="薪资范围" prop="salaryRange">
-          <el-input v-model="form.salaryRange" placeholder="请输入薪资范围" />
+          <el-input v-model="form.salaryRange" placeholder="请输入薪资范围"/>
         </el-form-item>
-<!--        <el-form-item label="月薪最小值" prop="salaryMonthMin">-->
-<!--          <el-input v-model="form.salaryMonthMin" placeholder="请输入月薪最小值" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="月薪最大值" prop="salaryMonthMax">-->
-<!--          <el-input v-model="form.salaryMonthMax" placeholder="请输入月薪最大值" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="月薪平均值" prop="salaryMonthAvg">-->
-<!--          <el-input v-model="form.salaryMonthAvg" placeholder="请输入月薪平均值" />-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="月薪最小值" prop="salaryMonthMin">-->
+        <!--          <el-input v-model="form.salaryMonthMin" placeholder="请输入月薪最小值" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="月薪最大值" prop="salaryMonthMax">-->
+        <!--          <el-input v-model="form.salaryMonthMax" placeholder="请输入月薪最大值" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="月薪平均值" prop="salaryMonthAvg">-->
+        <!--          <el-input v-model="form.salaryMonthAvg" placeholder="请输入月薪平均值" />-->
+        <!--        </el-form-item>-->
         <el-form-item label="地点" prop="location">
-          <el-input v-model="form.location" placeholder="请输入地点" />
+          <el-input v-model="form.location" placeholder="请输入地点"/>
         </el-form-item>
         <el-form-item label="经验要求" prop="experienceRequired">
           <el-select v-model="form.experienceRequired" placeholder="请选择经验要求">
@@ -273,10 +293,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="技能要求" prop="skillRequired">
-          <el-input v-model="form.skillRequired" placeholder="请输入技能要求" />
+          <el-input v-model="form.skillRequired" placeholder="请输入技能要求"/>
         </el-form-item>
         <el-form-item label="企业名称" prop="enterpriseName">
-          <el-input v-model="form.enterpriseName" placeholder="请输入企业名称" />
+          <el-input v-model="form.enterpriseName" placeholder="请输入企业名称"/>
         </el-form-item>
         <el-form-item label="上市情况" prop="listingStatus">
           <el-select v-model="form.listingStatus" placeholder="请选择上市情况">
@@ -299,19 +319,19 @@
           </el-select>
         </el-form-item>
         <el-form-item label="主营业务" prop="mainBusiness">
-          <el-input v-model="form.mainBusiness" placeholder="请输入主营业务" />
+          <el-input v-model="form.mainBusiness" placeholder="请输入主营业务"/>
         </el-form-item>
         <el-form-item label="标题详情" prop="titleDetail">
-          <el-input v-model="form.titleDetail" placeholder="请输入标题详情" />
+          <el-input v-model="form.titleDetail" placeholder="请输入标题详情"/>
         </el-form-item>
         <el-form-item label="薪资范围2" prop="salaryRange2">
-          <el-input v-model="form.salaryRange2" placeholder="请输入薪资范围2" />
+          <el-input v-model="form.salaryRange2" placeholder="请输入薪资范围2"/>
         </el-form-item>
         <el-form-item label="岗位描述" prop="jobDescription">
-          <el-input v-model="form.jobDescription" placeholder="请输入岗位描述" />
+          <el-input v-model="form.jobDescription" placeholder="请输入岗位描述"/>
         </el-form-item>
         <el-form-item label="工作地点" prop="wordLocation">
-          <el-input v-model="form.wordLocation" placeholder="请输入工作地点" />
+          <el-input v-model="form.wordLocation" placeholder="请输入工作地点"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -338,10 +358,13 @@
         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         <div class="el-upload__tip text-center" slot="tip">
           <div class="el-upload__tip" slot="tip">
-            <el-checkbox v-model="upload.updateSupport" /> 是否更新已经存在的招聘信息表数据
+            <el-checkbox v-model="upload.updateSupport"/>
+            是否更新已经存在的招聘信息表数据
           </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
-          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;" @click="importTemplate">下载模板</el-link>
+          <el-link type="primary" :underline="false" style="font-size:12px;vertical-align: baseline;"
+                   @click="importTemplate">下载模板
+          </el-link>
         </div>
       </el-upload>
       <div slot="footer" class="dialog-footer">
@@ -354,12 +377,17 @@
 
 <script>
 
-
-import { listRecruitInfo, getRecruitInfo, delRecruitInfo, addRecruitInfo, updateRecruitInfo } from "@/api/recruit/recruit";
-import { getToken } from "@/utils/auth";
+import {
+  listRecruitInfo,
+  getRecruitInfo,
+  delRecruitInfo,
+  addRecruitInfo,
+  updateRecruitInfo
+} from "@/api/recruit/recruit";
+import {getToken} from "@/utils/auth";
 
 export default {
-  name: "recruit_info",
+  name: "Recruit",
   dicts: ['recruit_experience_required', 'recruit_education_required', 'recruit_listing_status', 'recruit_enterprise_size'],
   data() {
     return {
@@ -379,25 +407,25 @@ export default {
       recruitList: [],
       // 表格列信息
       columns: [
-        { key: 0, label: '编号', visible: false },
-        { key: 1, label: '岗位', visible: true },
-        { key: 2, label: '标题链接', visible: true },
-        { key: 3, label: '薪资范围', visible: true },
-        { key: 4, label: '月薪最小值', visible: false },
-        { key: 5, label: '月薪最大值', visible: false },
-        { key: 6, label: '月薪平均值', visible: false },
-        { key: 7, label: '地点', visible: true },
-        { key: 8, label: '经验要求', visible: true },
-        { key: 9, label: '学历要求', visible: true },
-        { key: 10, label: '技能要求', visible: true },
-        { key: 11, label: '企业名称', visible: true },
-        { key: 12, label: '上市情况', visible: true },
-        { key: 13, label: '企业规模', visible: true },
-        { key: 14, label: '主营业务', visible: true },
-        { key: 15, label: '标题详情', visible: true },
-        { key: 16, label: '薪资范围2', visible: true },
-        { key: 17, label: '岗位描述', visible: true },
-        { key: 18, label: '工作地点', visible: true }
+        {key: 0, label: '编号', visible: false},
+        {key: 1, label: '岗位', visible: true},
+        {key: 2, label: '标题链接', visible: true},
+        {key: 3, label: '薪资范围', visible: true},
+        {key: 4, label: '月薪最小值', visible: false},
+        {key: 5, label: '月薪最大值', visible: false},
+        {key: 6, label: '月薪平均值', visible: false},
+        {key: 7, label: '地点', visible: true},
+        {key: 8, label: '经验要求', visible: true},
+        {key: 9, label: '学历要求', visible: true},
+        {key: 10, label: '技能要求', visible: true},
+        {key: 11, label: '企业名称', visible: true},
+        {key: 12, label: '上市情况', visible: true},
+        {key: 13, label: '企业规模', visible: true},
+        {key: 14, label: '主营业务', visible: true},
+        {key: 15, label: '标题详情', visible: true},
+        {key: 16, label: '薪资范围2', visible: true},
+        {key: 17, label: '岗位描述', visible: true},
+        {key: 18, label: '工作地点', visible: true}
       ],
       // 弹出层标题
       title: "",
@@ -433,14 +461,14 @@ export default {
         // 是否更新已经存在的招聘信息表数据
         updateSupport: 0,
         // 设置上传的请求头部
-        headers: { Authorization: "Bearer " + getToken() },
+        headers: {Authorization: "Bearer " + getToken()},
         // 上传的地址
         url: process.env.VUE_APP_BASE_API + "/recruit/recruit/importData"
       },
       // 表单校验
       rules: {
         recruitId: [
-          { required: true, message: "编号不能为空", trigger: "blur" }
+          {required: true, message: "编号不能为空", trigger: "blur"}
         ]
       }
     };
@@ -501,7 +529,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.recruitId)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -544,12 +572,13 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const recruitIds = row.recruitId || this.ids;
-      this.$modal.confirm('是否确认删除招聘信息表编号为"' + recruitIds + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除招聘信息表编号为"' + recruitIds + '"的数据项？').then(function () {
         return delRecruitInfo(recruitIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+      }).catch(() => {
+      });
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -579,12 +608,12 @@ export default {
       this.upload.open = false;
       this.upload.isUploading = false;
       this.$refs.upload.clearFiles();
-      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true });
+      this.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", {dangerouslyUseHTMLString: true});
       this.$modal.closeLoading()
       this.getList();
     },
     buildSubmitData() {
-      const data = { ...this.form };
+      const data = {...this.form};
       if (data.recruitId !== null && data.recruitId !== undefined && data.recruitId !== "") {
         data.recruitId = parseInt(data.recruitId, 10);
       } else {

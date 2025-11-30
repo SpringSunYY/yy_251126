@@ -148,7 +148,7 @@ class SysMenuService:
                 rv_child = RouterVo()
                 rv_child.path = menu.path
                 rv_child.component = menu.component
-                rv_child.name = menu.path.capitalize()
+                rv_child.name = cls.path_to_component_name(menu.path)
                 rv_child.meta = RouterMetaVo(
                     title=menu.menu_name, 
                     icon=menu.icon, 
@@ -165,7 +165,7 @@ class SysMenuService:
                 rv_child = RouterVo()
                 rv_child.path = cls.inner_link_replace_each(menu.path)
                 rv_child.component = UserConstants.INNER_LINK
-                rv_child.name = menu.path.capitalize()
+                rv_child.name = cls.path_to_component_name(menu.path)
                 rv_child.meta = RouterMetaVo(
                     title=menu.menu_name, 
                     icon=menu.icon, 
@@ -175,6 +175,34 @@ class SysMenuService:
                 rv.children = rv_children
             routers.append(rv)
         return routers
+    
+    @classmethod
+    def path_to_component_name(cls, path: str) -> str:
+        '''
+        将路径转换为组件名称（驼峰命名）
+        例如: recruitInfo -> RecruitInfo, recruit/info/index -> RecruitInfo
+        
+        Args:
+            path(str): 路径
+            
+        Returns:
+            str: 组件名称
+        '''
+        if not path:
+            return ""
+        # 移除末尾的 /index
+        if path.endswith('/index'):
+            path = path[:-6]
+        # 如果包含斜杠，分割后转换为驼峰命名
+        if '/' in path:
+            parts = path.split('/')
+            # 将每个部分首字母大写并拼接
+            name_parts = [part.capitalize() for part in parts if part]
+            return ''.join(name_parts)
+        else:
+            # 如果是驼峰命名，只将首字母大写
+            # 例如: recruitInfo -> RecruitInfo
+            return path[0].upper() + path[1:] if path else ""
     
     @classmethod
     def get_route_name(cls, menu: SysMenu) -> str:
@@ -190,7 +218,7 @@ class SysMenuService:
         if cls.is_menu_frame(menu):
             return ""
         else:
-            return menu.path.capitalize()
+            return cls.path_to_component_name(menu.path)
     
     @classmethod
     def get_router_path(cls, menu: SysMenu) -> str:

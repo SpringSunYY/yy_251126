@@ -109,7 +109,7 @@
             <div slot="header" class="card-header">
               <h3 class="post-title">{{ item.post || '未命名岗位' }}</h3>
             </div>
-            
+
             <!-- 薪资信息 -->
             <div class="card-content">
               <div class="info-item salary">
@@ -202,7 +202,7 @@
 import { listRecruitInfo } from "@/api/recruit/recruit";
 
 export default {
-  name: "recruit_info",
+  name: "RecruitInfo",
   dicts: ['recruit_experience_required', 'recruit_education_required', 'recruit_listing_status', 'recruit_enterprise_size'],
   data() {
     return {
@@ -266,7 +266,7 @@ export default {
       } else {
         this.loadingMore = true;
       }
-      
+
       listRecruitInfo(this.queryParams).then(response => {
         if (reset) {
           this.recruitList = response.rows || [];
@@ -274,10 +274,10 @@ export default {
           this.recruitList = [...this.recruitList, ...(response.rows || [])];
         }
         this.total = response.total || 0;
-        
+
         // 判断是否还有更多数据
         this.hasMore = this.recruitList.length < this.total;
-        
+
         this.loading = false;
         this.loadingMore = false;
       }).catch(() => {
@@ -290,7 +290,7 @@ export default {
       if (this.loading || this.loadingMore || !this.hasMore) {
         return;
       }
-      
+
       this.loadingMore = true;
       this.queryParams.pageNum += 1;
       this.getList(false);
@@ -316,18 +316,18 @@ export default {
       if (this.loading || this.loadingMore || !this.hasMore) {
         return;
       }
-      
+
       // 节流处理，避免频繁触发
       if (this.scrollTimer) {
         clearTimeout(this.scrollTimer);
       }
-      
+
       this.scrollTimer = setTimeout(() => {
         // 获取滚动位置
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
         const windowHeight = window.innerHeight || document.documentElement.clientHeight;
         const documentHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
-        
+
         // 当滚动到距离底部200px时加载更多
         if (scrollTop + windowHeight >= documentHeight - 200) {
           this.loadMore();
@@ -357,11 +357,11 @@ export default {
   margin-bottom: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  
+
   .total-text {
     font-size: 14px;
     color: #606266;
-    
+
     strong {
       color: #409eff;
       font-size: 18px;
@@ -384,19 +384,19 @@ export default {
   column-count: 4;
   column-gap: 20px;
   column-fill: balance;
-  
+
   @media (max-width: 1920px) {
     column-count: 4;
   }
-  
+
   @media (max-width: 1440px) {
     column-count: 3;
   }
-  
+
   @media (max-width: 1024px) {
     column-count: 2;
   }
-  
+
   @media (max-width: 768px) {
     column-count: 1;
   }
@@ -415,7 +415,7 @@ export default {
   flex-direction: column;
   transition: all 0.3s;
   border-radius: 8px;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -453,7 +453,7 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  
+
   .info-item {
     display: flex;
     align-items: center;
@@ -461,7 +461,7 @@ export default {
     font-size: 14px;
     color: #606266;
     flex-shrink: 0;
-    
+
     &:last-child {
       margin-bottom: 0;
     }
@@ -484,7 +484,7 @@ export default {
       flex: 1;
       color: #303133;
       word-break: break-all;
-      
+
       &.highlight {
         color: #f56c6c;
         font-weight: 600;
@@ -522,7 +522,7 @@ export default {
   .link-btn {
     color: #409eff;
     font-size: 14px;
-    
+
     &:hover {
       color: #66b1ff;
     }
